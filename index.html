@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e0a1e">
+<meta name="description" content="Full Alabanza · Música de alabanza y adoración">
+<meta name="color-scheme" content="dark light">
+<title>Full Alabanza</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 96'%3E%3Cpath d='M26 4h12v26h24v12H38v52H26V42H2V30h24z' fill='%23a855f7'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<noscript>
+  <div class="noscript"><strong>JavaScript desactivado</strong> Actívalo para usar el reproductor.</div>
+</noscript>
+
+<div class="app">
+
+  <section class="player-card" aria-label="Reproductor">
+
+    <div class="cover-wrap" id="coverWrap" role="button" tabindex="0" aria-label="Portada. Doble toque para reproducir, desliza para cambiar de pista.">
+      <div class="cover-bg" id="coverBg"></div>
+      <div class="cover-skeleton" id="coverSkeleton" aria-hidden="true"></div>
+      <img class="cover-img" id="coverImg" alt="" fetchpriority="high">
+      <div class="cover-loading" id="coverLoading" aria-hidden="true"><div class="spinner"></div></div>
+      <div class="cover-eq" aria-hidden="true">
+        <span class="cbar"></span><span class="cbar"></span><span class="cbar"></span>
+        <span class="cbar"></span><span class="cbar"></span>
+      </div>
+      <button class="cover-fav" id="coverFavBtn" type="button" aria-label="Marcar como favorito">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
+      </button>
+    </div>
+
+    <div class="title-row">
+      <h2 class="track-title" id="trackTitle" aria-live="polite">Cuán Grande es Él</h2>
+      <div class="save-check" id="saveCheck" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+    </div>
+    <p class="track-artist" id="trackArtist">Alabanza y Adoración</p>
+
+    <div class="progress-container">
+      <div class="seek-bubble" id="seekBubble" aria-hidden="true">0:00</div>
+      <div class="progress-bar" id="progressBar" role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 de 0:00" tabindex="0">
+        <div class="progress-buffered" id="progressBuffered"></div>
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="time-row">
+      <span id="timeCurrent">0:00</span>
+      <span id="timeDuration">--:--</span>
+    </div>
+
+    <div class="main-controls">
+      <button class="ctrl-icon" id="prevBtn" title="Anterior" aria-label="Anterior" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6 L4 12 L11 18 Z M20 6 L13 12 L20 18 Z"/></svg>
+      </button>
+      <button class="ctrl-play" id="playBtn" title="Reproducir" aria-label="Reproducir" type="button">
+        <span class="play-pulse" aria-hidden="true"></span>
+        <span class="play-loading" aria-hidden="true"><span class="play-spinner"></span></span>
+        <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L21 12 L7 20 Z"/></svg>
+      </button>
+      <button class="ctrl-icon" id="nextBtn" title="Siguiente" aria-label="Siguiente" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 6 L20 12 L13 18 Z M4 6 L11 12 L4 18 Z"/></svg>
+      </button>
+    </div>
+
+    <div class="volume-row">
+      <button class="vol-btn" id="volDown" type="button" aria-label="Bajar volumen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      </button>
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.9" aria-label="Volumen" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="90">
+      <button class="vol-btn" id="volIcon" type="button" aria-label="Silenciar o activar sonido">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      </button>
+    </div>
+    <div class="volume-note">Usa los botones del teléfono para el volumen</div>
+
+    <div class="bottom-icons">
+      <button class="icon-tab" id="shuffleBtn" title="Aleatorio" aria-label="Aleatorio" aria-pressed="false" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+      </button>
+      <button class="icon-tab" id="repeatBtn" title="Repetir" aria-label="Repetir" aria-pressed="false" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+      </button>
+      <button class="icon-tab" id="queueBtn" title="Añadir a la cola" aria-label="Añadir a la cola" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+        <span class="queue-badge" id="queueBadge" aria-hidden="true">0</span>
+      </button>
+      <button class="icon-tab" id="projectionBtn" title="Modo proyección" aria-label="Modo proyección" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12H3V5h18v10z"/></svg>
+      </button>
+      <button class="icon-tab" id="moreBtn" title="Más opciones" aria-label="Más opciones" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+
+    <p class="track-next" id="trackNext"></p>
+    <div id="songTags" class="tags"></div>
+
+  </section>
+
+  <section class="lyrics-section" id="lyricsSection" aria-label="Letra">
+    <div class="lyrics-header">
+      <span class="lyrics-title">Letra</span>
+      <button class="lyrics-toggle" id="lyricsToggle" type="button" aria-label="Ocultar letra">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+    </div>
+    <div class="lyrics-body" id="lyricsBody">
+      <div class="lyrics-empty" id="lyricsEmpty">Sin letra disponible para esta pista</div>
+      <ul class="lyrics-list" id="lyricsList" role="list"></ul>
+    </div>
+  </section>
+
+  <div class="error-panel" id="errorPanel" role="alert" aria-live="assertive">
+    <strong>⚠️ No se pudieron cargar las pistas</strong>
+    Verifica que existan en <code>songs/music-1.mp3</code>, <code>music-2.mp3</code>…
+    <button id="errorRetry" type="button">Reintentar</button>
+  </div>
+
+  <section class="devotional">
+    <p class="verse-text" id="verseText">"Porque de tal manera amó Dios al mundo…"</p>
+    <span class="verse-ref" id="verseRef">Juan 3:16</span>
+    <p class="reflection-text" id="reflectionText">Cargando reflexión…</p>
+  </section>
+
+  <section class="playlist-section">
+    <div class="playlist-header">
+      <span class="playlist-title">Alabanzas</span>
+      <div class="playlist-actions">
+        <button class="mini-btn play-all-btn" id="playAllBtn" type="button" title="Reproducir desde el inicio" aria-label="Reproducir desde el inicio">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="mini-btn" id="favFilterBtn" type="button" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+        <select class="mini-select" id="sortSelect" aria-label="Ordenar">
+          <option value="num">#</option>
+          <option value="az">A-Z</option>
+          <option value="plays">Top</option>
+          <option value="fav">Favs</option>
+        </select>
+        <span class="playlist-count" id="playlistCount">11</span>
+      </div>
+    </div>
+
+    <div class="playlist-controls">
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="searchInput" placeholder="Buscar…" aria-label="Buscar" autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar">×</button>
+      </div>
+      <select class="type-select" id="typeFilter" aria-label="Tipo">
+        <option value="all">Todas</option>
+        <option value="adoracion">Adoración</option>
+        <option value="alabanza">Alabanza</option>
+        <option value="gospel">Gospel</option>
+        <option value="instrumental">Instrumental</option>
+      </select>
+    </div>
+
+    <ul class="playlist" id="playlist" role="list"></ul>
+    <div class="no-results" id="noResults">Sin resultados</div>
+
+    <details class="extra-section" id="topSection">
+      <summary><span>⭐ Más escuchadas</span></summary>
+      <ol class="extra-list" id="topList"></ol>
+    </details>
+    <details class="extra-section" id="historySection">
+      <summary><span>🕒 Historial reciente</span></summary>
+      <ul class="extra-list" id="historyList"></ul>
+    </details>
+  </section>
+
+  <footer class="footer">
+    <p><strong>✝ Solo por Gracia · Solo por Fe · Solo en Cristo ✝</strong></p>
+  </footer>
+
+</div>
+
+<div class="more-modal" id="moreModal" role="dialog" aria-modal="true" aria-label="Más opciones">
+  <div class="modal-backdrop" data-close-more></div>
+  <div class="modal-sheet">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <h3 class="sheet-title">Opciones</h3>
+
+    <div class="sheet-row">
+      <button class="sheet-btn" id="themeToggle" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+        <span id="themeLabel">Tema: Auto</span>
+      </button>
+      <button class="sheet-btn" id="speedBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.05 6.05V4.55l-4 4 4 4v-1.5c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5H5.55c0 3.86 3.14 7 7 7s7-3.14 7-7-3.14-7-7-7z"/></svg>
+        Velocidad <span id="speedLabel">1x</span>
+      </button>
+      <button class="sheet-btn" id="wakeLockBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>
+        <span id="wakeLockLabel">Pantalla: Libre</span>
+      </button>
+      <button class="sheet-btn" id="ambientBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61z"/></svg>
+        <span id="ambientLabel">Ambiente: Off</span>
+      </button>
+      <button class="sheet-btn" id="shareBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+        Compartir
+      </button>
+      <button class="sheet-btn" id="stopBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>
+        Detener
+      </button>
+      <button class="sheet-btn" id="queueClearBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Vaciar cola
+      </button>
+    </div>
+
+    <h4 class="sheet-subtitle">Datos</h4>
+    <div class="sheet-row">
+      <button class="sheet-btn" id="backupExportBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+        Exportar
+      </button>
+      <button class="sheet-btn" id="backupImportBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+        Importar
+      </button>
+      <button class="sheet-btn" id="backupCopyBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copiar código
+      </button>
+      <button class="sheet-btn" id="backupResetBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Resetear todo
+      </button>
+    </div>
+
+    <h4 class="sheet-subtitle">Dormir</h4>
+    <div class="sleep-row">
+      <button class="sleep-btn" data-min="0" type="button">Off</button>
+      <button class="sleep-btn" data-min="15" type="button">15m</button>
+      <button class="sleep-btn" data-min="30" type="button">30m</button>
+      <button class="sleep-btn" data-min="60" type="button">1h</button>
+      <button class="sleep-btn" data-min="90" type="button">1.5h</button>
+      <button class="sleep-btn" data-min="end" type="button">Fin</button>
+      <span class="sleep-display" id="sleepDisplay" aria-live="polite"></span>
+    </div>
+
+    <button class="sheet-close" data-close-more type="button">Cerrar</button>
+  </div>
+</div>
+
+<div class="more-modal" id="importModal" role="dialog" aria-modal="true" aria-label="Importar backup">
+  <div class="modal-backdrop" data-close-import></div>
+  <div class="modal-sheet">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <h3 class="sheet-title">Importar backup</h3>
+    <p class="sheet-desc">Pega el código de backup o elige un archivo .json</p>
+
+    <textarea class="import-textarea" id="importTextarea" placeholder='Pega aquí el código...' rows="6" spellcheck="false"></textarea>
+
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    <div class="sheet-row" style="margin-top:12px">
+      <button class="sheet-btn" id="importFileBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4v6z"/></svg>
+        Elegir archivo
+      </button>
+      <button class="sheet-btn" id="importApplyBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        Aplicar
+      </button>
+    </div>
+
+    <button class="sheet-close" data-close-import type="button">Cancelar</button>
+  </div>
+</div>
+
+<div class="projection-overlay" id="projectionOverlay" aria-hidden="true">
+  <div class="proj-ambient" id="projAmbient" aria-hidden="true"></div>
+  <canvas class="proj-canvas" id="projCanvas" aria-hidden="true"></canvas>
+
+  <div class="proj-content">
+    <div class="proj-cover" id="projCover">
+      <img id="projCoverImg" alt="">
+    </div>
+    <h1 class="proj-title" id="projTitle">Cuán Grande es Él</h1>
+    <p class="proj-artist" id="projArtist">Alabanza y Adoración</p>
+    <div class="proj-lyrics" id="projLyrics"></div>
+  </div>
+
+  <div class="proj-controls" id="projControls">
+    <button class="proj-ctrl" id="projPrevBtn" type="button" aria-label="Anterior">
+      <svg viewBox="0 0 24 24"><path d="M11 6 L4 12 L11 18 Z M20 6 L13 12 L20 18 Z"/></svg>
+    </button>
+    <button class="proj-ctrl proj-play" id="projPlayBtn" type="button" aria-label="Reproducir">
+      <svg id="projPlayIcon" viewBox="0 0 24 24"><path d="M7 4 L21 12 L7 20 Z"/></svg>
+    </button>
+    <button class="proj-ctrl" id="projNextBtn" type="button" aria-label="Siguiente">
+      <svg viewBox="0 0 24 24"><path d="M13 6 L20 12 L13 18 Z M4 6 L11 12 L4 18 Z"/></svg>
+    </button>
+  </div>
+
+  <div class="proj-progress">
+    <span id="projTimeCurrent">0:00</span>
+    <div class="proj-progress-bar" id="projProgressBar">
+      <div class="proj-progress-fill" id="projProgressFill"></div>
+    </div>
+    <span id="projTimeDuration">--:--</span>
+  </div>
+
+  <button class="proj-exit" id="projExit" type="button" aria-label="Salir de proyección">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
+
+  <div class="proj-hint" id="projHint">Toca la pantalla para mostrar los controles</div>
+</div>
+
+<canvas class="ambient-canvas" id="ambientCanvas" aria-hidden="true"></canvas>
+
+<audio id="audio" preload="metadata"></audio>
+<audio id="preloader" preload="auto" muted></audio>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
