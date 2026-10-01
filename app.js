@@ -2,7 +2,6 @@
 
 /* ============================================================
    DATOS — 11 canciones (music-1 … music-11)
-   NO existe music-0. Fue eliminada del proyecto.
    ============================================================ */
 const songs = [
   { title: 'Cuán Grande es Él',    file: 'songs/music-1.mp3',  imageBase: 'images/music-1',  lyricBase: 'lyrics/music-1',  type: 'adoracion'    },
@@ -71,11 +70,58 @@ const normalize = (str) =>
   String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 /* ============================================================
-   IMÁGENES
+   IMÁGENES — NUEVA LÓGICA
+   Se prueba la carga directamente sobre un elemento <img>,
+   encadenando onerror para pasar a la siguiente extensión.
    ============================================================ */
-const EXTENSIONES_IMAGEN = ['', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+const EXTENSIONES_IMAGEN = ['jpg', 'jpeg', 'png', 'webp', 'gif', ''];
 const cacheImagenes = {};
 
+/**
+ * Carga una imagen sobre el elemento <img> dado.
+ * Prueba extensiones en orden. Si todas fallan, usa el SVG generado.
+ * Llama a onSuccess(url) cuando encuentra una que funcione.
+ */
+function cargarImagenEnElemento(imgEl, indice, onSuccess, onFallback) {
+  const base = songs[indice].imageBase;
+  let i = 0;
+  let terminado = false;
+
+  function siguiente() {
+    if (terminado) return;
+    if (i >= EXTENSIONES_IMAGEN.length) {
+      // Todas fallaron → SVG de respaldo
+      terminado = true;
+      const svg = generarPortada(indice);
+      imgEl.onload = null;
+      imgEl.onerror = null;
+      imgEl.src = svg;
+      if (onFallback) onFallback(svg);
+      return;
+    }
+    const ext = EXTENSIONES_IMAGEN[i];
+    const url = ext ? `${base}.${ext}` : base;
+
+    imgEl.onload = () => {
+      terminado = true;
+      cacheImagenes[indice] = url;
+      imgEl.onload = null;
+      imgEl.onerror = null;
+      if (onSuccess) onSuccess(url);
+    };
+    imgEl.onerror = () => {
+      i++;
+      siguiente();
+    };
+    imgEl.src = url;
+  }
+  siguiente();
+}
+
+/**
+ * Pre-carga (sin elemento DOM) para poder cachear antes de mostrar.
+ * Se usa para la lista de reproducción y para precargar el siguiente.
+ */
 function detectarImagen(indice) {
   return new Promise((resolve) => {
     if (cacheImagenes[indice] !== undefined) { resolve(cacheImagenes[indice]); return; }
@@ -107,10 +153,10 @@ function tipoMimeImagen(url) {
 
 function generarPortada(indice) {
   const paletas = [
-    ['#a855f7','#7c5cff'], ['#c084fc','#8b5cf6'], ['#a78bfa','#6366f1'],
-    ['#d8b4fe','#a855f7'], ['#c4b5fd','#7c3aed'], ['#f0abfc','#a855f7'],
-    ['#a855f7','#4c1d95'], ['#c084fc','#6d28d9'], ['#e9d5ff','#9333ea'],
-    ['#a78bfa','#4c1d95'], ['#c4b5fd','#7c3aed'], ['#d8b4fe','#8b5cf6']
+    ['#1e40af','#0ea5e9'], ['#1d4ed8','#06b6d4'], ['#0284c7','#22d3ee'],
+    ['#0369a1','#0ea5e9'], ['#1e3a8a','#0891b2'], ['#1d4ed8','#38bdf8'],
+    ['#0c4a6e','#06b6d4'], ['#075985','#0ea5e9'], ['#0e7490','#22d3ee'],
+    ['#155e75','#38bdf8'], ['#1e40af','#0891b2'], ['#1d4ed8','#0ea5e9']
   ];
   const [c1, c2] = paletas[indice % paletas.length];
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
@@ -119,10 +165,10 @@ function generarPortada(indice) {
       <stop offset="100%" stop-color="${c2}"/>
     </linearGradient></defs>
     <rect width="500" height="500" fill="url(#g${indice})"/>
-    <text x="250" y="270" font-family="Inter, sans-serif" font-weight="600"
-          font-size="42" text-anchor="middle" fill="#ffffff" opacity="0.9">Full Alabanza</text>
+    <text x="250" y="270" font-family="Inter, sans-serif" font-weight="700"
+          font-size="42" text-anchor="middle" fill="#ffffff" opacity="0.95">Full Alabanza</text>
   </svg>`;
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
 }
 
 /* ============================================================
@@ -247,7 +293,6 @@ const preloader = $('preloader');
 const coverWrap = $('coverWrap');
 const coverBg = $('coverBg');
 const coverImg = $('coverImg');
-const coverSkeleton = $('coverSkeleton');
 const coverLoading = $('coverLoading');
 const coverFavBtn = $('coverFavBtn');
 const trackTitle = $('trackTitle');
@@ -277,6 +322,8 @@ const speedLabel = $('speedLabel');
 const volumeSlider = $('volumeSlider');
 const volIcon = $('volIcon');
 const volDown = $('volDown');
+const volumeRow = $('volumeRow');
+const volumeBtnMobile = $('volumeBtnMobile');
 const playlistEl = $('playlist');
 const playlistCount = $('playlistCount');
 const toastEl = $('toast');
@@ -409,7 +456,7 @@ const state = {
 if (state.currentIndex < 0 || state.currentIndex >= songs.length) state.currentIndex = 0;
 
 /* ============================================================
-   ICONOS
+   ICONOS SVG
    ============================================================ */
 const ICON_PLAY = '<path d="M7 4 L21 12 L7 20 Z"/>';
 const ICON_PAUSE = '<rect x="7" y="5" width="3.5" height="14" rx="1"/><rect x="13.5" y="5" width="3.5" height="14" rx="1"/>';
@@ -463,7 +510,7 @@ function aplicarTema() {
   const resolved = temaResuelto(state.themeMode);
   document.body.classList.toggle('light', resolved === 'light');
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', resolved === 'light' ? '#ececec' : '#0e0a1e');
+  if (meta) meta.setAttribute('content', resolved === 'light' ? '#eef2f7' : '#080d1a');
   if (themeLabel) {
     themeLabel.textContent = 'Tema: ' + (
       state.themeMode === 'auto' ? 'Auto' :
@@ -489,10 +536,7 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', ()
    WAKE LOCK
    ============================================================ */
 async function requestWakeLock() {
-  if (!('wakeLock' in navigator)) {
-    toast('⚠️ Wake Lock no soportado', 2200);
-    return false;
-  }
+  if (!('wakeLock' in navigator)) return false;
   try {
     state.wakeLockSentinel = await navigator.wakeLock.request('screen');
     state.wakeLockSentinel.addEventListener('release', () => {
@@ -500,7 +544,6 @@ async function requestWakeLock() {
     });
     return true;
   } catch (err) {
-    console.warn('WakeLock error:', err);
     return false;
   }
 }
@@ -570,16 +613,12 @@ function initAudioVisualizer() {
     analyser.connect(audioContext.destination);
     return true;
   } catch (err) {
-    console.warn('AudioContext error:', err);
     return false;
   }
 }
 
 function startAmbientVisualizer() {
-  if (!initAudioVisualizer()) {
-    toast('⚠️ Visualizador no disponible', 2000);
-    return false;
-  }
+  if (!initAudioVisualizer()) return false;
   if (audioContext.state === 'suspended') audioContext.resume();
   const ctx = ambientCanvas.getContext('2d');
   const projCtx = projCanvas.getContext('2d');
@@ -612,7 +651,7 @@ function startAmbientVisualizer() {
       vy: -0.0003 - Math.random() * 0.0006,
       r: 0.5 + Math.random() * 2.2,
       a: 0.15 + Math.random() * 0.35,
-      hue: 260 + Math.random() * 40
+      hue: 190 + Math.random() * 40
     });
   }
 
@@ -633,8 +672,8 @@ function startAmbientVisualizer() {
 
     ctx.clearRect(0, 0, w, h);
     const bg = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-    bg.addColorStop(0, `rgba(168, 85, 247, ${0.04 + energy * 0.06})`);
-    bg.addColorStop(1, 'rgba(14, 10, 30, 0)');
+    bg.addColorStop(0, `rgba(34, 211, 238, ${0.04 + energy * 0.08})`);
+    bg.addColorStop(1, 'rgba(8, 13, 26, 0)');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
@@ -647,7 +686,7 @@ function startAmbientVisualizer() {
       const alpha = p.a * (0.6 + energy * 0.5);
       ctx.beginPath();
       ctx.arc(p.x * w, p.y * h, p.r * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 80%, 75%, ${alpha})`;
+      ctx.fillStyle = `hsla(${p.hue}, 90%, 70%, ${alpha})`;
       ctx.fill();
     });
 
@@ -660,9 +699,9 @@ function startAmbientVisualizer() {
         const bh = v * h * 0.35;
         const x = i * barWidth;
         const grad = projCtx.createLinearGradient(0, h, 0, h - bh);
-        grad.addColorStop(0, 'rgba(168, 85, 247, 0)');
-        grad.addColorStop(0.5, 'rgba(168, 85, 247, 0.35)');
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0.55)');
+        grad.addColorStop(0, 'rgba(34, 211, 238, 0)');
+        grad.addColorStop(0.5, 'rgba(34, 211, 238, 0.4)');
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0.6)');
         projCtx.fillStyle = grad;
         projCtx.fillRect(x + barWidth * 0.15, h - bh, barWidth * 0.7, bh);
       }
@@ -720,9 +759,6 @@ async function enterProjection() {
     if (document.documentElement.requestFullscreen) {
       await document.documentElement.requestFullscreen();
     }
-    if (screen.orientation && screen.orientation.lock) {
-      try { await screen.orientation.lock('portrait'); } catch {}
-    }
   } catch {}
 
   if (!state.wakeLockEnabled) {
@@ -745,18 +781,16 @@ async function exitProjection() {
       await document.exitFullscreen();
     }
   } catch {}
-  if (!state.wakeLockEnabled && state.wakeLockSentinel) {
-    await releaseWakeLock();
-  }
 }
 
 function actualizarProyeccion() {
   const song = songs[state.currentIndex];
   projTitle.textContent = song.title;
   projArtist.textContent = 'Alabanza y Adoración';
-  const img = coverImg.src || generarPortada(state.currentIndex);
-  projCoverImg.src = img;
-  projAmbient.style.backgroundImage = `url("${img}")`;
+  if (coverImg.src) {
+    projCoverImg.src = coverImg.src;
+    projAmbient.style.backgroundImage = `url("${coverImg.src}")`;
+  }
   const parsed = cacheLetras[state.currentIndex];
   if (parsed && parsed.length > 0) {
     const idx = lastActiveLyricIdx >= 0 && parsed[lastActiveLyricIdx] ? lastActiveLyricIdx : 0;
@@ -813,11 +847,8 @@ function exportBackup() {
     if (v !== null) data[k] = JSON.parse(v);
   });
   const backup = {
-    app: 'Full Alabanza',
-    version: 1,
-    timestamp: Date.now(),
-    exportedAt: new Date().toISOString(),
-    data
+    app: 'Full Alabanza', version: 1, timestamp: Date.now(),
+    exportedAt: new Date().toISOString(), data
   };
   const json = JSON.stringify(backup, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -843,12 +874,7 @@ function copiarBackupAlPortapapeles() {
     const v = localStorage.getItem(k);
     if (v !== null) data[k] = JSON.parse(v);
   });
-  const backup = {
-    app: 'Full Alabanza',
-    version: 1,
-    timestamp: Date.now(),
-    data
-  };
+  const backup = { app: 'Full Alabanza', version: 1, timestamp: Date.now(), data };
   const json = JSON.stringify(backup);
   if (navigator.clipboard) {
     navigator.clipboard.writeText(json).then(() => {
@@ -908,7 +934,6 @@ function aplicarBackup(json) {
     toast(`✅ Backup aplicado (${applied} datos). Recargando…`, 2000);
     setTimeout(() => location.reload(), 1500);
   } catch (err) {
-    console.warn(err);
     toast('⚠️ Backup inválido', 2200);
   }
 }
@@ -967,14 +992,6 @@ document.addEventListener('keydown', (e) => {
     if (importModal.classList.contains('on')) closeImportModal();
     else if (moreModal.classList.contains('on')) closeMore();
   }
-  if (e.key === 'Tab' && moreModal.classList.contains('on')) {
-    const focusables = moreModal.querySelectorAll('button, [href], input, select, [tabindex]:not([tabindex="-1"])');
-    if (focusables.length === 0) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  }
 });
 
 /* ============================================================
@@ -986,7 +1003,7 @@ function mostrarVersiculo() {
     const v = versiculos[state.verseIndex % versiculos.length];
     verseText.textContent = `"${v.texto}"`;
     verseRef.textContent = v.ref;
-    verseText.style.opacity = '0.9';
+    verseText.style.opacity = '1';
     state.verseIndex++;
   }, 400);
 }
@@ -1056,7 +1073,7 @@ function removeFromShuffleQueue(index) {
 }
 
 /* ============================================================
-   COLA MANUAL (persistente)
+   COLA MANUAL
    ============================================================ */
 function addToQueue(index = state.currentIndex) {
   state.queue.push(index);
@@ -1106,7 +1123,7 @@ function registrarReproduccion(index) {
 }
 
 /* ============================================================
-   DURACIONES Y PORTADAS LAZY
+   DURACIONES LAZY
    ============================================================ */
 const durationCache = {};
 function fetchDuration(index) {
@@ -1167,30 +1184,24 @@ function construirLista() {
     li.dataset.type = song.type;
     li.setAttribute('role', 'button');
     li.setAttribute('tabindex', '0');
-    li.setAttribute('aria-label', `Reproducir ${song.title}`);
 
     const num = document.createElement('div');
     num.className = 'item-number';
     num.textContent = String(index + 1).padStart(2, '0');
-    num.setAttribute('aria-hidden', 'true');
 
     const img = document.createElement('img');
     img.className = 'item-thumb';
     img.alt = '';
     img.loading = 'lazy';
-    img.decoding = 'async';
 
     const info = document.createElement('div');
     info.className = 'item-info';
-
     const title = document.createElement('div');
     title.className = 'item-title';
     title.textContent = song.title;
-
     const sub = document.createElement('div');
     sub.className = 'item-sub';
     sub.textContent = TYPE_LABELS[song.type] || 'Alabanza';
-
     info.appendChild(title);
     info.appendChild(sub);
 
@@ -1201,7 +1212,6 @@ function construirLista() {
     const favB = document.createElement('button');
     favB.className = 'item-fav-btn';
     favB.type = 'button';
-    favB.setAttribute('aria-label', 'Marcar como favorito');
     favB.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${state.favorites.has(index) ? ICON_HEART_FILLED : ICON_HEART_EMPTY}</svg>`;
     if (state.favorites.has(index)) favB.classList.add('on');
     favB.addEventListener('click', (e) => {
@@ -1211,7 +1221,6 @@ function construirLista() {
 
     const eq = document.createElement('div');
     eq.className = 'item-playing';
-    eq.setAttribute('aria-hidden', 'true');
     eq.innerHTML = '<span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>';
 
     li.appendChild(num);
@@ -1230,12 +1239,10 @@ function construirLista() {
     };
     li.addEventListener('click', activate);
     li.addEventListener('keydown', (e) => {
-      if (e.target !== li) return;
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
     });
 
     frag.appendChild(li);
-
     if (lazyObserver) lazyObserver.observe(li);
   }
 
@@ -1264,7 +1271,6 @@ function actualizarFavBtn(index) {
   if (!fb) return;
   const isFav = state.favorites.has(index);
   fb.classList.toggle('on', isFav);
-  fb.setAttribute('aria-label', isFav ? 'Quitar de favoritos' : 'Marcar como favorito');
   fb.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${isFav ? ICON_HEART_FILLED : ICON_HEART_EMPTY}</svg>`;
 }
 
@@ -1291,7 +1297,6 @@ function toggleFavorite(index) {
 function actualizarFavBtnPrincipal() {
   const isFav = state.favorites.has(state.currentIndex);
   coverFavBtn.classList.toggle('on', isFav);
-  coverFavBtn.setAttribute('aria-label', isFav ? 'Quitar de favoritos' : 'Marcar como favorito');
   const svg = coverFavBtn.querySelector('svg');
   if (svg) svg.innerHTML = isFav ? ICON_HEART_FILLED : ICON_HEART_EMPTY;
 }
@@ -1305,7 +1310,6 @@ coverFavBtn.addEventListener('click', (e) => {
    ============================================================ */
 function aplicarFiltroFavoritos() {
   favFilterBtn.classList.toggle('active', state.favFilterActive);
-  favFilterBtn.setAttribute('aria-pressed', state.favFilterActive ? 'true' : 'false');
   lsSet(LS.favFilter, state.favFilterActive);
   aplicarFiltros();
 }
@@ -1337,9 +1341,6 @@ function aplicarFiltros() {
   }
   noResults.classList.toggle('on', visibles === 0);
   searchClear.classList.toggle('on', term.length > 0);
-  playlistCount.textContent = visibles === songs.length
-    ? `${songs.length}`
-    : `${visibles} / ${songs.length}`;
 }
 searchInput.addEventListener('input', (e) => {
   state.searchTerm = e.target.value;
@@ -1404,7 +1405,6 @@ function actualizarExtras() {
                       <span class="extra-badge">${item.count}×</span>`;
       li.addEventListener('click', () => {
         state.userInitiatedChange = true;
-        state.userHasInteracted = true;
         state.currentIndex = item.index;
         loadAndPlay({ resetPosition: true });
       });
@@ -1424,7 +1424,6 @@ function actualizarExtras() {
                       <span class="extra-title">${song.title}</span>`;
       li.addEventListener('click', () => {
         state.userInitiatedChange = true;
-        state.userHasInteracted = true;
         state.currentIndex = h.index;
         loadAndPlay({ resetPosition: true });
       });
@@ -1455,7 +1454,6 @@ function loadAndPlay(opts = {}) {
   state.countedForThisLoad = false;
 
   coverImg.classList.add('changing');
-  coverSkeleton.classList.add('on');
   coverLoading.classList.add('on');
   setLoadingState(true);
 
@@ -1474,9 +1472,6 @@ function loadAndPlay(opts = {}) {
       if (token !== state.loadToken) return;
       coverLoading.classList.remove('on');
       setLoadingState(false);
-      if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
-        console.warn('Error al reproducir:', err);
-      }
     });
   }
 
@@ -1501,7 +1496,10 @@ async function cargarLetraParaPista() {
   if (state.isProjectionMode) actualizarProyeccion();
 }
 
-async function updateTrackInfo() {
+/* ============================================================
+   ACTUALIZAR INFO — CON NUEVA CARGA DE IMAGEN
+   ============================================================ */
+function updateTrackInfo() {
   const song = songs[state.currentIndex];
   if (!song) return;
   trackTitle.textContent = song.title;
@@ -1524,27 +1522,35 @@ async function updateTrackInfo() {
     trackNext.innerHTML = `Siguiente: <strong>${songs[nxt].title}</strong>`;
   }
 
-  const urlImagen = await detectarImagen(state.currentIndex);
-  const portada = urlImagen || generarPortada(state.currentIndex);
-  const preloadImg = new Image();
-  preloadImg.onload = () => {
-    coverImg.src = portada;
-    coverBg.style.backgroundImage = `url("${portada}")`;
-    coverImg.classList.remove('changing');
-    coverSkeleton.classList.remove('on');
-  };
-  preloadImg.onerror = () => {
-    coverImg.classList.remove('changing');
-    coverSkeleton.classList.remove('on');
-  };
-  preloadImg.src = portada;
+  // 🔥 CARGA DIRECTA DE LA IMAGEN EN EL ELEMENTO VISIBLE
+  cargarImagenEnElemento(
+    coverImg,
+    state.currentIndex,
+    (url) => {
+      // Éxito: la imagen ya está cargada en el <img>
+      coverBg.style.backgroundImage = `url("${url}")`;
+      coverImg.classList.remove('changing');
+      coverLoading.classList.remove('on');
+      // Actualizar Media Session con la portada real
+      actualizarMediaSessionMetadata(url);
+      if (state.isProjectionMode) {
+        projCoverImg.src = url;
+        projAmbient.style.backgroundImage = `url("${url}")`;
+      }
+    },
+    (svgUrl) => {
+      // Fallback: usó el SVG generado
+      coverBg.style.backgroundImage = `url("${svgUrl}")`;
+      coverImg.classList.remove('changing');
+      coverLoading.classList.remove('on');
+      actualizarMediaSessionMetadata(svgUrl);
+    }
+  );
 
   document.title = `${song.title} · Full Alabanza`;
-  actualizarMediaSessionMetadata(portada);
+
   if (state.isProjectionMode) {
     projTitle.textContent = song.title;
-    projCoverImg.src = portada;
-    projAmbient.style.backgroundImage = `url("${portada}")`;
   }
 }
 
@@ -1598,9 +1604,6 @@ function applyShuffleUI() {
 function applyRepeatUI() {
   repeatBtn.classList.toggle('active', state.repeatMode > 0);
   repeatBtn.setAttribute('aria-pressed', state.repeatMode > 0 ? 'true' : 'false');
-  repeatBtn.setAttribute('aria-label',
-    state.repeatMode === 0 ? 'Repetir desactivado' :
-    state.repeatMode === 1 ? 'Repetir una canción' : 'Repetir todas');
 }
 function toggleShuffle() {
   state.isShuffle = !state.isShuffle;
@@ -1651,17 +1654,6 @@ playBtn.addEventListener('click', () => {
     if (!audio.src) {
       audio.src = songs[state.currentIndex].file;
       audio.load();
-    }
-    const saved = state.positions[state.currentIndex] || 0;
-    if (audio.currentTime < 1 && saved > 3) {
-      if (audio.duration && isFinite(audio.duration)) {
-        if (saved < audio.duration - 2) {
-          audio.currentTime = saved;
-          toast(`⏯ Reanudando desde ${formatTime(saved)}`, 2000);
-        }
-      } else {
-        state.needsRestoreOnMetadata = true;
-      }
     }
     audio.play().catch(err => console.warn(err));
     if (state.ambientEnabled && audioContext && audioContext.state === 'suspended') {
@@ -1756,13 +1748,11 @@ playAllBtn.addEventListener('click', () => {
 function aplicarLyricsCollapsed() {
   const collapsed = lsGet(LS.lyricsCollapsed, false);
   lyricsSection.classList.toggle('collapsed', collapsed);
-  lyricsToggle.setAttribute('aria-label', collapsed ? 'Mostrar letra' : 'Ocultar letra');
 }
 lyricsToggle.addEventListener('click', () => {
   const collapsed = !lyricsSection.classList.contains('collapsed');
   lsSet(LS.lyricsCollapsed, collapsed);
   lyricsSection.classList.toggle('collapsed', collapsed);
-  lyricsToggle.setAttribute('aria-label', collapsed ? 'Mostrar letra' : 'Ocultar letra');
   if (!collapsed) {
     lastActiveLyricIdx = -1;
     actualizarLetraActiva();
@@ -1785,10 +1775,6 @@ coverWrap.addEventListener('pointermove', (e) => {
   const dx = e.clientX - touchState.startX;
   const dy = e.clientY - touchState.startY;
   if (Math.abs(dx) > 8 || Math.abs(dy) > 8) touchState.moved = true;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
-    const translate = Math.max(-50, Math.min(50, dx * 0.35));
-    coverImg.style.transform = `translateX(${translate}px)`;
-  }
 });
 function endSwipe(e) {
   if (touchState.startT === 0) return;
@@ -1797,7 +1783,6 @@ function endSwipe(e) {
   const dt = Date.now() - touchState.startT;
   const moved = touchState.moved;
   coverWrap.classList.remove('swiping');
-  coverImg.style.transform = '';
   touchState.startT = 0;
 
   if (moved) {
@@ -1820,7 +1805,6 @@ coverWrap.addEventListener('pointerup', endSwipe);
 coverWrap.addEventListener('pointercancel', () => {
   touchState.startT = 0;
   coverWrap.classList.remove('swiping');
-  coverImg.style.transform = '';
 });
 coverWrap.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playBtn.click(); }
@@ -1838,9 +1822,6 @@ function seek(e) {
   if (audio.duration && isFinite(audio.duration)) {
     audio.currentTime = pct * audio.duration;
     progressFill.style.width = (pct * 100) + '%';
-    progressBar.setAttribute('aria-valuenow', Math.round(pct * 100));
-    progressBar.setAttribute('aria-valuetext',
-      `${formatTime(pct * audio.duration)} de ${formatTime(audio.duration)}`);
     seekBubble.style.left = (pct * rect.width) + 'px';
     seekBubble.textContent = `${formatTime(pct * audio.duration)} / ${formatTime(audio.duration)}`;
   }
@@ -1861,11 +1842,6 @@ progressBar.addEventListener('pointercancel', () => {
   state.isSeeking = false;
   seekBubble.classList.remove('on');
 });
-progressBar.addEventListener('keydown', (e) => {
-  if (!audio.duration) return;
-  if (e.key === 'ArrowRight') { audio.currentTime = Math.min(audio.duration, audio.currentTime + 5); e.preventDefault(); }
-  if (e.key === 'ArrowLeft')  { audio.currentTime = Math.max(0, audio.currentTime - 5); e.preventDefault(); }
-});
 
 /* ============================================================
    AUDIO EVENTOS
@@ -1877,9 +1853,6 @@ audio.addEventListener('timeupdate', () => {
     const pct = (audio.currentTime / audio.duration) * 100;
     progressFill.style.width = pct + '%';
     timeCurrent.textContent = formatTime(audio.currentTime);
-    progressBar.setAttribute('aria-valuenow', Math.round(pct));
-    progressBar.setAttribute('aria-valuetext',
-      `${formatTime(audio.currentTime)} de ${formatTime(audio.duration)}`);
     const rem = audio.duration - audio.currentTime;
     timeDuration.textContent = '-' + formatTime(rem);
   }
@@ -1920,12 +1893,8 @@ audio.addEventListener('loadedmetadata', () => {
   }
   if (restore > 0 && restore < audio.duration - 2) {
     audio.currentTime = restore;
-    if (!state.isFirstLoad && restore > 5) {
-      toast(`⏯ Reanudando desde ${formatTime(restore)}`, 2000);
-    }
   }
   state.pendingRestoreTime = 0;
-  actualizarPositionState();
 });
 audio.addEventListener('durationchange', () => {
   timeDuration.textContent = '-' + formatTime(audio.duration);
@@ -1938,7 +1907,6 @@ audio.addEventListener('play', () => {
 audio.addEventListener('pause', () => {
   updatePlayIcon();
   guardarPosicion();
-  if (audio.currentTime < 0.1) state.needsRestoreOnMetadata = false;
 });
 audio.addEventListener('waiting', () => { coverLoading.classList.add('on'); setLoadingState(true); });
 audio.addEventListener('playing', () => {
@@ -1948,11 +1916,9 @@ audio.addEventListener('playing', () => {
   state.consecutiveErrors = 0;
 });
 audio.addEventListener('canplay', () => { coverLoading.classList.remove('on'); setLoadingState(false); });
-audio.addEventListener('stalled', () => coverLoading.classList.add('on'));
 
 audio.addEventListener('error', () => {
   coverLoading.classList.remove('on');
-  coverSkeleton.classList.remove('on');
   coverImg.classList.remove('changing');
   setLoadingState(false);
   const li = playlistEl.querySelector(`li[data-index="${state.currentIndex}"]`);
@@ -2015,19 +1981,11 @@ audio.addEventListener('ended', () => {
 /* ============================================================
    VOLUMEN
    ============================================================ */
-function syncVolumeAria() {
-  volumeSlider.setAttribute('aria-valuenow', Math.round(audio.volume * 100));
-}
 volumeSlider.addEventListener('input', (e) => {
-  const wasMuted = audio.muted;
   audio.volume = parseFloat(e.target.value);
   audio.muted = false;
   updateVolumeIcon();
   saveState();
-  syncVolumeAria();
-  if (wasMuted && audio.volume > 0 && state.userHasInteracted) {
-    toast('🔊 Sonido activado', 1500);
-  }
 });
 function updateVolumeIcon() {
   const v = audio.muted ? 0 : audio.volume;
@@ -2045,7 +2003,6 @@ volDown.addEventListener('click', () => {
   volumeSlider.value = audio.volume;
   audio.muted = false;
   updateVolumeIcon();
-  syncVolumeAria();
   saveState();
 });
 
@@ -2100,16 +2057,11 @@ document.querySelectorAll('.sleep-btn').forEach(btn => {
 function actualizarMediaSessionMetadata(portada) {
   if (!('mediaSession' in navigator)) return;
   const song = songs[state.currentIndex];
-  const nextTitle = state.isShuffle
-    ? 'Aleatoria'
-    : (state.queue.length > 0
-        ? songs[state.queue[0]].title
-        : songs[(state.currentIndex + 1) % songs.length].title);
   try {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.title,
       artist: 'Full Alabanza',
-      album: `Siguiente: ${nextTitle}`,
+      album: 'Alabanza y Adoración',
       artwork: [{ src: portada, sizes: '512x512', type: tipoMimeImagen(portada) }]
     });
   } catch (e) {}
@@ -2117,16 +2069,11 @@ function actualizarMediaSessionMetadata(portada) {
 
 async function updateMediaSession() {
   if (!('mediaSession' in navigator)) return;
-  const urlImagen = await detectarImagen(state.currentIndex);
-  const portada = urlImagen || generarPortada(state.currentIndex);
-  actualizarMediaSessionMetadata(portada);
   try {
     navigator.mediaSession.setActionHandler('play', () => audio.play());
     navigator.mediaSession.setActionHandler('pause', () => audio.pause());
     navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
     navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
-    navigator.mediaSession.setActionHandler('stop', () => stopBtn.click());
-    actualizarPositionState();
   } catch (e) {}
 }
 
@@ -2155,56 +2102,22 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     audio.volume = Math.min(1, audio.volume + 0.1);
     volumeSlider.value = audio.volume;
-    updateVolumeIcon(); syncVolumeAria(); saveState();
+    updateVolumeIcon();
   }
   if (e.key === 'ArrowDown' && onBody) {
     e.preventDefault();
     audio.volume = Math.max(0, audio.volume - 0.1);
     volumeSlider.value = audio.volume;
-    updateVolumeIcon(); syncVolumeAria(); saveState();
+    updateVolumeIcon();
   }
   if (e.key === 'm' || e.key === 'M') { e.preventDefault(); toggleMute(); }
   if (e.key === 's' || e.key === 'S') { e.preventDefault(); toggleShuffle(); }
   if (e.key === 'r' || e.key === 'R') { e.preventDefault(); toggleRepeat(); }
   if (e.key === 't' || e.key === 'T') { e.preventDefault(); cicloTema(); }
-  if (e.key === 'p' || e.key === 'P') { e.preventDefault(); state.isProjectionMode ? exitProjection() : enterProjection(); }
-  if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleWakeLock(); }
-  if (e.key === 'a' || e.key === 'A') { e.preventDefault(); toggleAmbient(); }
 });
 
 /* ============================================================
-   MODO IGLESIA (4 dedos)
-   ============================================================ */
-let churchModeTimer = null;
-
-document.addEventListener('touchstart', (e) => {
-  if (e.touches.length >= 4 && !state.isProjectionMode) {
-    clearTimeout(churchModeTimer);
-    churchModeTimer = setTimeout(() => {
-      activateChurchMode();
-    }, 500);
-  }
-}, { passive: true });
-
-document.addEventListener('touchend', () => {
-  clearTimeout(churchModeTimer);
-}, { passive: true });
-
-async function activateChurchMode() {
-  haptic(30);
-  if (!state.isProjectionMode) await enterProjection();
-  if (!state.ambientEnabled) toggleAmbient();
-  if (!state.wakeLockEnabled) {
-    state.wakeLockEnabled = true;
-    lsSet(LS.wakeLock, true);
-    await requestWakeLock();
-    aplicarWakeLockUI();
-  }
-  toast('✝ Modo iglesia activado', 2500);
-}
-
-/* ============================================================
-   GUARDAR
+   GUARDAR PERIÓDICO
    ============================================================ */
 setInterval(() => {
   if (!audio.paused && audio.currentTime > 0) guardarPosicion();
@@ -2230,7 +2143,6 @@ function init() {
   const vol = lsGet(LS.volume, 0.9);
   audio.volume = vol;
   volumeSlider.value = vol;
-  syncVolumeAria();
   updateVolumeIcon();
 
   applyShuffleUI();
@@ -2258,12 +2170,17 @@ function init() {
   }
   aplicarWakeLockUI();
 
+  if (volumeBtnMobile && volumeRow) {
+    volumeBtnMobile.addEventListener('click', () => {
+      const isHidden = volumeRow.style.display === 'none';
+      volumeRow.style.display = isHidden ? 'flex' : 'none';
+      volumeBtnMobile.classList.toggle('active', isHidden);
+    });
+  }
+
   startTimers();
 }
 
-/* ============================================================
-   FIX: init() se llama UNA SOLA VEZ
-   ============================================================ */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
