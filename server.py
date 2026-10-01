@@ -27,7 +27,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         p = str(path)
         if '?' in p:
             p = p.split('?', 1)[0]
-        # Imagen sin extensión /images/music-N → forzar image/jpeg
         if re.match(r'^/images/music-\d+$', p):
             return 'image/jpeg'
         return super().guess_type(path)
