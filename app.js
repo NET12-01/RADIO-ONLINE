@@ -300,8 +300,6 @@ const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const shuffleBtn = $('shuffleBtn');
 const repeatBtn = $('repeatBtn');
-const queueBtn = $('queueBtn');
-const queueBadge = $('queueBadge');
 const projectionBtn = $('projectionBtn');
 const stopBtn = $('stopBtn');
 const shareBtn = $('shareBtn');
@@ -313,7 +311,6 @@ const volDown = $('volDown');
 const volumeRow = $('volumeRow');
 const volumeBtnMobile = $('volumeBtnMobile');
 const playlistEl = $('playlist');
-const playlistCount = $('playlistCount');
 const toastEl = $('toast');
 const sleepDisplay = $('sleepDisplay');
 const verseText = $('verseText');
@@ -328,7 +325,6 @@ const errorRetry = $('errorRetry');
 const favFilterBtn = $('favFilterBtn');
 const sortSelect = $('sortSelect');
 const playAllBtn = $('playAllBtn');
-const queueClearBtn = $('queueClearBtn');
 const topList = $('topList');
 const historyList = $('historyList');
 const topSection = $('topSection');
@@ -384,7 +380,7 @@ const LS = {
   playCounts: 'fa_playcounts', history: 'fa_history', speed: 'fa_speed',
   favFilter: 'fa_favfilter', sort: 'fa_sort', typeFilter: 'fa_typefilter',
   theme: 'fa_theme', wakeLock: 'fa_wakelock', ambient: 'fa_ambient',
-  lyricsCollapsed: 'fa_lyrics_collapsed', queue: 'fa_queue'
+  lyricsCollapsed: 'fa_lyrics_collapsed'
 };
 function lsGet(k, def) {
   try { const v = JSON.parse(localStorage.getItem(k)); return v === null ? def : v; }
@@ -430,7 +426,6 @@ const state = {
   countedForThisLoad: false,
   shuffleQueue: [],
   userHasInteracted: false,
-  queue: (lsGet(LS.queue, []) || []).filter(i => Number.isInteger(i) && i >= 0 && i < songs.length),
   toastTimer: null,
   saveCheckTimer: null,
   lastPreloadedSrc: '',
@@ -1036,7 +1031,6 @@ function saveState() {
   lsSet(LS.shuffle, state.isShuffle);
   lsSet(LS.repeat, state.repeatMode);
   lsSet(LS.speed, state.speedIndex);
-  lsSet(LS.queue, state.queue);
 }
 function flushState() { guardarPosicion(); saveState(); }
 
@@ -1059,38 +1053,6 @@ function removeFromShuffleQueue(index) {
   const pos = state.shuffleQueue.indexOf(index);
   if (pos >= 0) state.shuffleQueue.splice(pos, 1);
 }
-
-/* ============================================================
-   COLA MANUAL
-   ============================================================ */
-function addToQueue(index = state.currentIndex) {
-  state.queue.push(index);
-  lsSet(LS.queue, state.queue);
-  actualizarQueueBadge();
-  haptic(10);
-  toast(`➕ En cola · ${songs[index].title}`, 1800);
-}
-function takeNextFromQueue() {
-  if (state.queue.length === 0) return -1;
-  const next = state.queue.shift();
-  lsSet(LS.queue, state.queue);
-  return next;
-}
-function clearQueue() {
-  if (state.queue.length === 0) { toast('La cola ya está vacía'); return; }
-  state.queue = [];
-  lsSet(LS.queue, state.queue);
-  actualizarQueueBadge();
-  toast('🗑 Cola vaciada', 1500);
-  closeMore();
-}
-function actualizarQueueBadge() {
-  const n = state.queue.length;
-  queueBadge.textContent = String(n);
-  queueBadge.classList.toggle('on', n > 0);
-}
-queueBtn.addEventListener('click', () => addToQueue());
-queueClearBtn.addEventListener('click', clearQueue);
 
 /* ============================================================
    HISTORIAL Y TOP
@@ -1498,8 +1460,6 @@ function updateTrackInfo() {
 
   if (state.isShuffle) {
     trackNext.innerHTML = 'Siguiente: <strong>aleatoria</strong>';
-  } else if (state.queue.length > 0) {
-    trackNext.innerHTML = `Siguiente: <strong>${songs[state.queue[0]].title}</strong> · en cola`;
   } else {
     const nxt = (state.currentIndex + 1) % songs.length;
     trackNext.innerHTML = `Siguiente: <strong>${songs[nxt].title}</strong>`;
@@ -1558,8 +1518,7 @@ function updatePlayIcon() {
 function precargarSiguiente() {
   if (prefersReducedData) return;
   let nextIndex;
-  if (state.queue.length > 0) nextIndex = state.queue[0];
-  else if (state.isShuffle) nextIndex = state.shuffleQueue[0] !== undefined ? state.shuffleQueue[0] : -1;
+  if (state.isShuffle) nextIndex = state.shuffleQueue[0] !== undefined ? state.shuffleQueue[0] : -1;
   else nextIndex = (state.currentIndex + 1) % songs.length;
   if (nextIndex < 0 || nextIndex === state.lastPreloadedIndex) return;
   state.lastPreloadedIndex = nextIndex;
@@ -1645,11 +1604,7 @@ nextBtn.addEventListener('click', () => {
   state.userInitiatedChange = true;
   state.userHasInteracted = true;
   haptic(6);
-  const q = takeNextFromQueue();
-  if (q >= 0) {
-    actualizarQueueBadge();
-    state.currentIndex = q;
-  } else if (state.isShuffle) {
+  if (state.isShuffle) {
     state.currentIndex = getNextShuffleIndex();
   } else {
     state.currentIndex = (state.currentIndex + 1) % songs.length;
@@ -1712,9 +1667,6 @@ playAllBtn.addEventListener('click', () => {
   state.userInitiatedChange = true;
   state.userHasInteracted = true;
   state.currentIndex = 0;
-  state.queue = [];
-  lsSet(LS.queue, state.queue);
-  actualizarQueueBadge();
   loadAndPlay({ resetPosition: true });
   toast('▶ Reproduciendo desde el inicio');
 });
@@ -1921,10 +1873,14 @@ errorRetry.addEventListener('click', () => {
   loadAndPlay();
 });
 
+/* ============================================================
+   FIN DE PISTA → SIGUIENTE AUTOMÁTICAMENTE
+   ============================================================ */
 audio.addEventListener('ended', () => {
   state.positions[state.currentIndex] = 0;
   lsSet(LS.positions, state.positions);
 
+  // Si el temporizador pide parar al terminar esta pista
   if (state.sleepEndOfTrack) {
     state.sleepEndOfTrack = false;
     document.querySelectorAll('.sleep-btn').forEach(b => b.classList.remove('active'));
@@ -1934,20 +1890,17 @@ audio.addEventListener('ended', () => {
     toast('😴 Reproducción detenida (fin de pista)');
     return;
   }
+
+  // Modo repetir una: reinicia la misma canción
   if (state.repeatMode === 1) {
     audio.currentTime = 0;
     audio.play();
     return;
   }
+
+  // Avanzar a la siguiente
   state.userInitiatedChange = true;
-  const q = takeNextFromQueue();
-  if (q >= 0) {
-    actualizarQueueBadge();
-    state.currentIndex = q;
-  } else if (state.repeatMode === 0 && state.currentIndex === songs.length - 1 && !state.isShuffle) {
-    updatePlayIcon();
-    return;
-  } else if (state.isShuffle) {
+  if (state.isShuffle) {
     state.currentIndex = getNextShuffleIndex();
   } else {
     state.currentIndex = (state.currentIndex + 1) % songs.length;
@@ -2111,11 +2064,14 @@ window.addEventListener('pagehide', flushState);
 function init() {
   aplicarTema();
 
-  // Ocultar pantalla de carga
   const splash = document.getElementById('splash');
   if (splash) {
-    setTimeout(() => splash.classList.add('hide'), 800);
-    setTimeout(() => splash.remove(), 1500);
+    setTimeout(() => {
+      splash.classList.add('hide');
+      setTimeout(() => {
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 600);
+    }, 800);
   }
 
   aplicarLyricsCollapsed();
@@ -2138,7 +2094,6 @@ function init() {
   applySpeed();
   actualizarFavBtnPrincipal();
   aplicarFiltroFavoritos();
-  actualizarQueueBadge();
   sortSelect.value = state.sortMode;
   typeFilter.value = state.typeFilterValue;
 
