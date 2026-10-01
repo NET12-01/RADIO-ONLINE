@@ -12,6 +12,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @keyframes splashAutoHide {
+    0%, 90% { opacity: 1; visibility: visible; }
+    100% { opacity: 0; visibility: hidden; pointer-events: none; }
+  }
+  #splash { animation: splashAutoHide 5s ease forwards; }
+  #splash.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    animation: none;
+  }
+</style>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,7 +33,6 @@
   <div class="noscript"><strong>JavaScript desactivado</strong> Actívalo para usar el reproductor.</div>
 </noscript>
 
-<!-- Pantalla de carga -->
 <div class="splash" id="splash">
   <img src="images/logo.png" alt="Full Alabanza" class="splash-logo">
   <div class="splash-name">Full Alabanza</div>
@@ -111,10 +123,6 @@
     </div>
 
     <div class="secondary-row">
-      <button class="icon-tab" id="queueBtn" title="Añadir a la cola" aria-label="Añadir a la cola" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-        <span class="queue-badge" id="queueBadge" aria-hidden="true">0</span>
-      </button>
       <button class="icon-tab" id="projectionBtn" title="Modo proyección" aria-label="Modo proyección" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12H3V5h18v10z"/></svg>
       </button>
@@ -248,10 +256,6 @@
       <button class="sheet-btn" id="stopBtn" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>
         Detener
-      </button>
-      <button class="sheet-btn" id="queueClearBtn" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-        Vaciar cola
       </button>
     </div>
 
