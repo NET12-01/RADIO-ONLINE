@@ -70,18 +70,11 @@ const normalize = (str) =>
   String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 /* ============================================================
-   IMÁGENES — NUEVA LÓGICA
-   Se prueba la carga directamente sobre un elemento <img>,
-   encadenando onerror para pasar a la siguiente extensión.
+   IMÁGENES
    ============================================================ */
 const EXTENSIONES_IMAGEN = ['jpg', 'jpeg', 'png', 'webp', 'gif', ''];
 const cacheImagenes = {};
 
-/**
- * Carga una imagen sobre el elemento <img> dado.
- * Prueba extensiones en orden. Si todas fallan, usa el SVG generado.
- * Llama a onSuccess(url) cuando encuentra una que funcione.
- */
 function cargarImagenEnElemento(imgEl, indice, onSuccess, onFallback) {
   const base = songs[indice].imageBase;
   let i = 0;
@@ -90,7 +83,6 @@ function cargarImagenEnElemento(imgEl, indice, onSuccess, onFallback) {
   function siguiente() {
     if (terminado) return;
     if (i >= EXTENSIONES_IMAGEN.length) {
-      // Todas fallaron → SVG de respaldo
       terminado = true;
       const svg = generarPortada(indice);
       imgEl.onload = null;
@@ -118,10 +110,6 @@ function cargarImagenEnElemento(imgEl, indice, onSuccess, onFallback) {
   siguiente();
 }
 
-/**
- * Pre-carga (sin elemento DOM) para poder cachear antes de mostrar.
- * Se usa para la lista de reproducción y para precargar el siguiente.
- */
 function detectarImagen(indice) {
   return new Promise((resolve) => {
     if (cacheImagenes[indice] !== undefined) { resolve(cacheImagenes[indice]); return; }
@@ -1100,8 +1088,6 @@ function actualizarQueueBadge() {
   const n = state.queue.length;
   queueBadge.textContent = String(n);
   queueBadge.classList.toggle('on', n > 0);
-  queueBtn.setAttribute('aria-label',
-    n === 0 ? 'Añadir a la cola' : `Añadir a la cola (${n} en cola)`);
 }
 queueBtn.addEventListener('click', () => addToQueue());
 queueClearBtn.addEventListener('click', clearQueue);
@@ -1496,9 +1482,6 @@ async function cargarLetraParaPista() {
   if (state.isProjectionMode) actualizarProyeccion();
 }
 
-/* ============================================================
-   ACTUALIZAR INFO — CON NUEVA CARGA DE IMAGEN
-   ============================================================ */
 function updateTrackInfo() {
   const song = songs[state.currentIndex];
   if (!song) return;
@@ -1522,16 +1505,13 @@ function updateTrackInfo() {
     trackNext.innerHTML = `Siguiente: <strong>${songs[nxt].title}</strong>`;
   }
 
-  // 🔥 CARGA DIRECTA DE LA IMAGEN EN EL ELEMENTO VISIBLE
   cargarImagenEnElemento(
     coverImg,
     state.currentIndex,
     (url) => {
-      // Éxito: la imagen ya está cargada en el <img>
       coverBg.style.backgroundImage = `url("${url}")`;
       coverImg.classList.remove('changing');
       coverLoading.classList.remove('on');
-      // Actualizar Media Session con la portada real
       actualizarMediaSessionMetadata(url);
       if (state.isProjectionMode) {
         projCoverImg.src = url;
@@ -1539,7 +1519,6 @@ function updateTrackInfo() {
       }
     },
     (svgUrl) => {
-      // Fallback: usó el SVG generado
       coverBg.style.backgroundImage = `url("${svgUrl}")`;
       coverImg.classList.remove('changing');
       coverLoading.classList.remove('on');
@@ -1599,11 +1578,9 @@ function precargarSiguiente() {
    ============================================================ */
 function applyShuffleUI() {
   shuffleBtn.classList.toggle('active', state.isShuffle);
-  shuffleBtn.setAttribute('aria-pressed', state.isShuffle ? 'true' : 'false');
 }
 function applyRepeatUI() {
   repeatBtn.classList.toggle('active', state.repeatMode > 0);
-  repeatBtn.setAttribute('aria-pressed', state.repeatMode > 0 ? 'true' : 'false');
 }
 function toggleShuffle() {
   state.isShuffle = !state.isShuffle;
@@ -2062,7 +2039,10 @@ function actualizarMediaSessionMetadata(portada) {
       title: song.title,
       artist: 'Full Alabanza',
       album: 'Alabanza y Adoración',
-      artwork: [{ src: portada, sizes: '512x512', type: tipoMimeImagen(portada) }]
+      artwork: [
+        { src: portada, sizes: '512x512', type: tipoMimeImagen(portada) },
+        { src: 'images/logo.png', sizes: '512x512', type: 'image/png' }
+      ]
     });
   } catch (e) {}
 }
@@ -2130,6 +2110,14 @@ window.addEventListener('pagehide', flushState);
    ============================================================ */
 function init() {
   aplicarTema();
+
+  // Ocultar pantalla de carga
+  const splash = document.getElementById('splash');
+  if (splash) {
+    setTimeout(() => splash.classList.add('hide'), 800);
+    setTimeout(() => splash.remove(), 1500);
+  }
+
   aplicarLyricsCollapsed();
 
   const params = new URLSearchParams(location.search);
