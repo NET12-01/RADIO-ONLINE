@@ -1,6 +1,6 @@
 /* ============================================================
-   FULL ALABANZA · Design System v1.2
-   FIX: imágenes visibles siempre. Simplificación de la portada.
+   FULL ALABANZA · Design System v1.3
+   Logo + Splash + Player profesional
    ============================================================ */
 
 :root {
@@ -22,7 +22,6 @@
   --glass-2: rgba(255, 255, 255, 0.09);
   --glass-3: rgba(255, 255, 255, 0.14);
   --danger: #ff5b8a;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.45);
   --shadow-xl: 0 30px 70px -20px rgba(6, 130, 200, 0.5), 0 12px 28px rgba(0, 0, 0, 0.5);
@@ -113,6 +112,60 @@ body.projection-mode { overflow: hidden; padding: 0; }
 }
 .noscript strong { display: block; margin-bottom: 8px; }
 
+/* ============================================================
+   SPLASH SCREEN
+   ============================================================ */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 500ms var(--ease), visibility 500ms var(--ease);
+}
+.splash.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 20px 50px rgba(34, 211, 238, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: splashPulse 2s ease-in-out infinite;
+}
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 20px 50px rgba(34, 211, 238, 0.5); }
+  50%      { transform: scale(1.04); box-shadow: 0 24px 60px rgba(34, 211, 238, 0.7); }
+}
+.splash-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+.splash-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid rgba(34, 211, 238, 0.2);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+/* ============================================================
+   APP CONTAINER
+   ============================================================ */
 .app {
   width: 100%;
   max-width: 460px;
@@ -132,8 +185,7 @@ body.projection-mode { overflow: hidden; padding: 0; }
 .ambient-canvas {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
@@ -152,17 +204,20 @@ body.ambient-on .ambient-canvas { opacity: 1; }
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-icon {
-  width: 42px; height: 42px;
-  border-radius: 12px;
-  background: var(--brand-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
   flex-shrink: 0;
+  background: transparent;
+  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
-.brand-icon svg { width: 22px; height: 22px; fill: currentColor; }
+.brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .brand-text h1 {
   font-size: 16px;
   font-weight: 700;
@@ -206,7 +261,6 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   gap: 18px;
 }
 
-/* ---------- TARJETA PRINCIPAL ---------- */
 .player-card {
   background: var(--surface-1);
   backdrop-filter: blur(24px) saturate(1.2);
@@ -226,9 +280,7 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   transition: background 320ms var(--ease), border-color 320ms var(--ease);
 }
 
-/* ============================================================
-   PORTADA — SIMPLIFICADA Y A PRUEBA DE BALAS
-   ============================================================ */
+/* ---------- PORTADA ---------- */
 .cover-wrap {
   grid-area: cover;
   position: relative;
@@ -246,19 +298,16 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   outline: none;
   touch-action: pan-y;
   flex-shrink: 0;
-  transition: transform 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
+  transition: transform 400ms var(--ease-out);
   z-index: 1;
 }
 .cover-wrap:focus-visible { box-shadow: 0 0 0 3px var(--brand), 0 12px 28px rgba(0, 0, 0, 0.5); }
 .cover-wrap.swiping { transition: none; }
 
-/* Fondo difuminado */
 .cover-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background-size: cover;
   background-position: center;
   filter: blur(16px) saturate(1.3);
@@ -267,13 +316,10 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   transition: background-image 700ms var(--ease);
 }
 
-/* Imagen principal — display block, sin posicionamiento absoluto raro */
 .cover-img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   object-position: center;
   display: block;
@@ -344,7 +390,6 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   justify-content: center;
   cursor: pointer;
   transition: all 200ms var(--ease);
-  touch-action: manipulation;
   padding: 0;
 }
 .cover-fav svg { width: 13px; height: 13px; fill: currentColor; }
@@ -352,9 +397,7 @@ body.ambient-on .ambient-canvas { opacity: 1; }
 .cover-fav.on { color: var(--danger); }
 .cover-fav.on svg { filter: drop-shadow(0 0 6px rgba(255, 91, 138, 0.8)); }
 
-/* ============================================================
-   INFO
-   ============================================================ */
+/* ---------- INFO ---------- */
 .player-info {
   grid-area: info;
   min-width: 0;
@@ -420,9 +463,7 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   border: 1px solid rgba(34, 211, 238, 0.25);
 }
 
-/* ============================================================
-   ACCIONES RÁPIDAS
-   ============================================================ */
+/* ---------- ACCIONES RÁPIDAS ---------- */
 .quick-actions {
   grid-area: actions;
   display: flex;
@@ -444,7 +485,6 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   justify-content: center;
   cursor: pointer;
   transition: all 200ms var(--ease);
-  touch-action: manipulation;
   padding: 0;
 }
 .quick-btn svg { width: 17px; height: 17px; fill: currentColor; }
@@ -456,9 +496,7 @@ body.ambient-on .ambient-canvas { opacity: 1; }
   border-color: rgba(34, 211, 238, 0.4);
 }
 
-/* ============================================================
-   PROGRESO
-   ============================================================ */
+/* ---------- PROGRESO ---------- */
 .progress-wrap {
   grid-area: progress;
   position: relative;
@@ -970,10 +1008,7 @@ body.ios .volume-note { display: block; }
   outline: none;
 }
 .search-input::placeholder { color: var(--text-4); }
-.search-input:focus {
-  background: var(--glass-2);
-  border-color: var(--brand);
-}
+.search-input:focus { background: var(--glass-2); border-color: var(--brand); }
 .search-clear {
   position: absolute; right: 12px; top: 50%;
   transform: translateY(-50%);
@@ -1337,6 +1372,26 @@ body.projection-mode .ambient-canvas { display: none; }
   opacity: 0.55;
   pointer-events: none;
 }
+
+.proj-brand {
+  position: absolute;
+  top: calc(16px + var(--safe-t));
+  left: calc(16px + var(--safe-l));
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15);
+  opacity: 0.9;
+}
+.proj-brand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .proj-content {
   position: relative;
   z-index: 2;
