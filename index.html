@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0e0a1e">
+<meta name="theme-color" content="#080d1a">
 <meta name="description" content="Full Alabanza · Música de alabanza y adoración">
 <meta name="color-scheme" content="dark light">
 <title>Full Alabanza</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 96'%3E%3Cpath d='M26 4h12v26h24v12H38v52H26V42H2V30h24z' fill='%23a855f7'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3v10.55A4 4 0 1 0 14 17V7h4V3z' fill='%2322d3ee'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,41 +21,73 @@
 
 <div class="app">
 
-  <section class="player-card" aria-label="Reproductor">
-
-    <div class="cover-wrap" id="coverWrap" role="button" tabindex="0" aria-label="Portada. Doble toque para reproducir, desliza para cambiar de pista.">
-      <div class="cover-bg" id="coverBg"></div>
-      <div class="cover-skeleton" id="coverSkeleton" aria-hidden="true"></div>
-      <img class="cover-img" id="coverImg" alt="" fetchpriority="high">
-      <div class="cover-loading" id="coverLoading" aria-hidden="true"><div class="spinner"></div></div>
-      <div class="cover-eq" aria-hidden="true">
-        <span class="cbar"></span><span class="cbar"></span><span class="cbar"></span>
-        <span class="cbar"></span><span class="cbar"></span>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" fill="currentColor"/>
+        </svg>
       </div>
-      <button class="cover-fav" id="coverFavBtn" type="button" aria-label="Marcar como favorito">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
-      </button>
-    </div>
-
-    <div class="title-row">
-      <h2 class="track-title" id="trackTitle" aria-live="polite">Cuán Grande es Él</h2>
-      <div class="save-check" id="saveCheck" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <div class="brand-text">
+        <h1>Full Alabanza</h1>
+        <span>Música Cristiana</span>
       </div>
     </div>
-    <p class="track-artist" id="trackArtist">Alabanza y Adoración</p>
+    <button class="header-action" id="moreBtn" type="button" aria-label="Más opciones">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+      </svg>
+    </button>
+  </header>
 
-    <div class="progress-container">
-      <div class="seek-bubble" id="seekBubble" aria-hidden="true">0:00</div>
-      <div class="progress-bar" id="progressBar" role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 de 0:00" tabindex="0">
-        <div class="progress-buffered" id="progressBuffered"></div>
-        <div class="progress-fill" id="progressFill"></div>
+  <section class="player-section" aria-label="Reproductor">
+
+    <div class="player-card">
+
+      <div class="cover-wrap" id="coverWrap" role="button" tabindex="0" aria-label="Portada. Doble toque para reproducir, desliza para cambiar de pista.">
+        <div class="cover-bg" id="coverBg"></div>
+        <img class="cover-img" id="coverImg" alt="" fetchpriority="high">
+        <div class="cover-loading" id="coverLoading" aria-hidden="true"><div class="spinner"></div></div>
+        <div class="cover-eq" aria-hidden="true">
+          <span class="cbar"></span><span class="cbar"></span><span class="cbar"></span>
+        </div>
+        <button class="cover-fav" id="coverFavBtn" type="button" aria-label="Marcar como favorito">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
+        </button>
       </div>
-    </div>
 
-    <div class="time-row">
-      <span id="timeCurrent">0:00</span>
-      <span id="timeDuration">--:--</span>
+      <div class="player-info">
+        <div class="title-row">
+          <h2 class="track-title" id="trackTitle" aria-live="polite">Cuán Grande es Él</h2>
+          <div class="save-check" id="saveCheck" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        </div>
+        <p class="track-artist" id="trackArtist">Alabanza y Adoración</p>
+        <div id="songTags" class="tags"></div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="quick-btn" id="repeatBtn" title="Repetir" aria-label="Repetir" aria-pressed="false" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+        </button>
+        <button class="quick-btn" id="shuffleBtn" title="Aleatorio" aria-label="Aleatorio" aria-pressed="false" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="seek-bubble" id="seekBubble" aria-hidden="true">0:00</div>
+        <div class="progress-bar" id="progressBar" role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 de 0:00" tabindex="0">
+          <div class="progress-buffered" id="progressBuffered"></div>
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-row">
+          <span id="timeCurrent">0:00</span>
+          <span id="timeDuration">-0:00</span>
+        </div>
+      </div>
+
     </div>
 
     <div class="main-controls">
@@ -72,7 +104,20 @@
       </button>
     </div>
 
-    <div class="volume-row">
+    <div class="secondary-row">
+      <button class="icon-tab" id="queueBtn" title="Añadir a la cola" aria-label="Añadir a la cola" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+        <span class="queue-badge" id="queueBadge" aria-hidden="true">0</span>
+      </button>
+      <button class="icon-tab" id="projectionBtn" title="Modo proyección" aria-label="Modo proyección" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12H3V5h18v10z"/></svg>
+      </button>
+      <button class="icon-tab" id="volumeBtnMobile" title="Volumen" aria-label="Volumen" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      </button>
+    </div>
+
+    <div class="volume-row" id="volumeRow">
       <button class="vol-btn" id="volDown" type="button" aria-label="Bajar volumen">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
       </button>
@@ -83,39 +128,19 @@
     </div>
     <div class="volume-note">Usa los botones del teléfono para el volumen</div>
 
-    <div class="bottom-icons">
-      <button class="icon-tab" id="shuffleBtn" title="Aleatorio" aria-label="Aleatorio" aria-pressed="false" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-      </button>
-      <button class="icon-tab" id="repeatBtn" title="Repetir" aria-label="Repetir" aria-pressed="false" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-      </button>
-      <button class="icon-tab" id="queueBtn" title="Añadir a la cola" aria-label="Añadir a la cola" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-        <span class="queue-badge" id="queueBadge" aria-hidden="true">0</span>
-      </button>
-      <button class="icon-tab" id="projectionBtn" title="Modo proyección" aria-label="Modo proyección" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12H3V5h18v10z"/></svg>
-      </button>
-      <button class="icon-tab" id="moreBtn" title="Más opciones" aria-label="Más opciones" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-      </button>
-    </div>
-
     <p class="track-next" id="trackNext"></p>
-    <div id="songTags" class="tags"></div>
 
   </section>
 
-  <section class="lyrics-section" id="lyricsSection" aria-label="Letra">
-    <div class="lyrics-header">
-      <span class="lyrics-title">Letra</span>
-      <button class="lyrics-toggle" id="lyricsToggle" type="button" aria-label="Ocultar letra">
+  <section class="panel" id="lyricsSection" aria-label="Letra">
+    <div class="panel-header">
+      <span class="panel-title">Letra</span>
+      <button class="panel-toggle" id="lyricsToggle" type="button" aria-label="Ocultar letra">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
       </button>
     </div>
-    <div class="lyrics-body" id="lyricsBody">
-      <div class="lyrics-empty" id="lyricsEmpty">Sin letra disponible para esta pista</div>
+    <div class="panel-body" id="lyricsBody">
+      <div class="panel-empty" id="lyricsEmpty">Sin letra disponible para esta pista</div>
       <ul class="lyrics-list" id="lyricsList" role="list"></ul>
     </div>
   </section>
@@ -132,11 +157,11 @@
     <p class="reflection-text" id="reflectionText">Cargando reflexión…</p>
   </section>
 
-  <section class="playlist-section">
-    <div class="playlist-header">
-      <span class="playlist-title">Alabanzas</span>
-      <div class="playlist-actions">
-        <button class="mini-btn play-all-btn" id="playAllBtn" type="button" title="Reproducir desde el inicio" aria-label="Reproducir desde el inicio">
+  <section class="panel playlist-panel">
+    <div class="panel-header">
+      <span class="panel-title">Alabanzas</span>
+      <div class="panel-actions">
+        <button class="mini-btn primary" id="playAllBtn" type="button" title="Reproducir desde el inicio" aria-label="Reproducir desde el inicio">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <button class="mini-btn" id="favFilterBtn" type="button" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false">
@@ -148,44 +173,46 @@
           <option value="plays">Top</option>
           <option value="fav">Favs</option>
         </select>
-        <span class="playlist-count" id="playlistCount">11</span>
       </div>
     </div>
 
-    <div class="playlist-controls">
-      <div class="search-wrap">
-        <input type="text" class="search-input" id="searchInput" placeholder="Buscar…" aria-label="Buscar" autocomplete="off">
-        <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar">×</button>
+    <div class="panel-body">
+      <div class="playlist-controls">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Buscar…" aria-label="Buscar" autocomplete="off">
+          <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar">×</button>
+        </div>
+        <select class="type-select" id="typeFilter" aria-label="Tipo">
+          <option value="all">Todas</option>
+          <option value="adoracion">Adoración</option>
+          <option value="alabanza">Alabanza</option>
+          <option value="gospel">Gospel</option>
+          <option value="instrumental">Instrumental</option>
+        </select>
       </div>
-      <select class="type-select" id="typeFilter" aria-label="Tipo">
-        <option value="all">Todas</option>
-        <option value="adoracion">Adoración</option>
-        <option value="alabanza">Alabanza</option>
-        <option value="gospel">Gospel</option>
-        <option value="instrumental">Instrumental</option>
-      </select>
+
+      <ul class="playlist" id="playlist" role="list"></ul>
+      <div class="no-results" id="noResults">Sin resultados</div>
+
+      <details class="extra-section" id="topSection">
+        <summary><span>⭐ Más escuchadas</span></summary>
+        <ol class="extra-list" id="topList"></ol>
+      </details>
+      <details class="extra-section" id="historySection">
+        <summary><span>🕒 Historial reciente</span></summary>
+        <ul class="extra-list" id="historyList"></ul>
+      </details>
     </div>
-
-    <ul class="playlist" id="playlist" role="list"></ul>
-    <div class="no-results" id="noResults">Sin resultados</div>
-
-    <details class="extra-section" id="topSection">
-      <summary><span>⭐ Más escuchadas</span></summary>
-      <ol class="extra-list" id="topList"></ol>
-    </details>
-    <details class="extra-section" id="historySection">
-      <summary><span>🕒 Historial reciente</span></summary>
-      <ul class="extra-list" id="historyList"></ul>
-    </details>
   </section>
 
   <footer class="footer">
-    <p><strong>✝ Solo por Gracia · Solo por Fe · Solo en Cristo ✝</strong></p>
+    <p>♪ Full Alabanza · Música Cristiana ♪</p>
   </footer>
 
 </div>
 
-<div class="more-modal" id="moreModal" role="dialog" aria-modal="true" aria-label="Más opciones">
+<div class="modal" id="moreModal" role="dialog" aria-modal="true" aria-label="Más opciones">
   <div class="modal-backdrop" data-close-more></div>
   <div class="modal-sheet">
     <div class="sheet-handle" aria-hidden="true"></div>
@@ -257,7 +284,7 @@
   </div>
 </div>
 
-<div class="more-modal" id="importModal" role="dialog" aria-modal="true" aria-label="Importar backup">
+<div class="modal" id="importModal" role="dialog" aria-modal="true" aria-label="Importar backup">
   <div class="modal-backdrop" data-close-import></div>
   <div class="modal-sheet">
     <div class="sheet-handle" aria-hidden="true"></div>
