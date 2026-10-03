@@ -32,12 +32,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().guess_type(path)
 
     def end_headers(self):
-        if self.path.startswith('/songs/') or self.path.startswith('/images/'):
+        if (self.path.startswith('/songs/') or
+            self.path.startswith('/images/') or
+            self.path.startswith('/videos/')):
             self.send_header('Cache-Control', 'public, max-age=86400')
         super().end_headers()
 
     def log_message(self, format, *args):
-        if '/images/' in self.path or '/songs/' in self.path:
+        if ('/images/' in self.path or
+            '/songs/' in self.path or
+            '/videos/' in self.path):
             return
         super().log_message(format, *args)
 
@@ -49,6 +53,9 @@ def main():
         print(f"✅ Servidor corriendo en http://localhost:{PORT}")
         print(f"📁 Sirviendo: {DIRECTORY}")
         print(f"🖼  Imágenes en /images/music-N → image/jpeg")
+        print(f"🎬 Videos en /videos/ → video/mp4")
+        print(f"💳 Alias Naranja X: dani0.--")
+        print(f"👤 Titular: Braian Daniel Velazquez")
         print(f"⏹  Detén con Ctrl+C")
         try:
             httpd.serve_forever()
