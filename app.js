@@ -961,7 +961,7 @@ function openMore() {
 }
 function closeMore() {
   moreModal.classList.remove('on');
-  if (!importModal.classList.contains('on')) {
+  if (!importModal.classList.contains('on') && !adModal.classList.contains('on')) {
     document.body.classList.remove('modal-open');
   }
   if (lastFocusedBeforeModal) lastFocusedBeforeModal.focus();
@@ -1880,7 +1880,6 @@ audio.addEventListener('ended', () => {
   state.positions[state.currentIndex] = 0;
   lsSet(LS.positions, state.positions);
 
-  // Si el temporizador pide parar al terminar esta pista
   if (state.sleepEndOfTrack) {
     state.sleepEndOfTrack = false;
     document.querySelectorAll('.sleep-btn').forEach(b => b.classList.remove('active'));
@@ -1891,14 +1890,12 @@ audio.addEventListener('ended', () => {
     return;
   }
 
-  // Modo repetir una: reinicia la misma canción
   if (state.repeatMode === 1) {
     audio.currentTime = 0;
     audio.play();
     return;
   }
 
-  // Avanzar a la siguiente
   state.userInitiatedChange = true;
   if (state.isShuffle) {
     state.currentIndex = getNextShuffleIndex();
@@ -2129,3 +2126,156 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+/* ============================================================
+   ANUNCIO DE APOYO VOLUNTARIO · NARANJA X
+   ============================================================ */
+
+// 💳 Datos de transferencia
+const ALIAS_NARANJA = 'dani0.--';
+const TITULAR_NARANJA = 'Braian Daniel Velazquez';
+
+const adModal = document.getElementById('adModal');
+const adVideo = document.getElementById('adVideo');
+const adCloseBtn = document.getElementById('adCloseBtn');
+const adLaterBtn = document.getElementById('adLaterBtn');
+const adDonateBtn = document.getElementById('adDonateBtn');
+const adCopyAlias = document.getElementById('adCopyAlias');
+const adAliasValue = document.getElementById('adAliasValue');
+const adAliasHolder = document.getElementById('adAliasHolder');
+const supportFab = document.getElementById('supportFab');
+
+let adShownThisSession = false;
+const AD_DELAY_MS = 12000;   // 12 segundos antes de mostrar el anuncio
+const AD_SESSION_KEY = 'fa_ad_last_shown';
+const AD_COOLDOWN_MS = 1000 * 60 * 60 * 6; // No molestar de nuevo en 6 horas
+
+function puedeMostrarAnuncio() {
+  if (adShownThisSession) return false;
+  try {
+    const last = parseInt(localStorage.getItem(AD_SESSION_KEY) || '0', 10);
+    if (Date.now() - last < AD_COOLDOWN_MS) return false;
+  } catch {}
+  return true;
+}
+
+function mostrarAnuncio() {
+  if (!adModal || adModal.classList.contains('on')) return;
+  adModal.classList.add('on');
+  document.body.classList.add('modal-open');
+  adShownThisSession = true;
+  try { localStorage.setItem(AD_SESSION_KEY, String(Date.now())); } catch {}
+
+  if (adVideo) {
+    adVideo.currentTime = 0;
+    adVideo.muted = true;
+    const p = adVideo.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+}
+
+function cerrarAnuncio() {
+  if (!adModal) return;
+  adModal.classList.remove('on');
+  if (!moreModal.classList.contains('on') && !importModal.classList.contains('on')) {
+    document.body.classList.remove('modal-open');
+  }
+  if (adVideo) {
+    try { adVideo.pause(); adVideo.currentTime = 0; } catch {}
+  }
+}
+
+/* --- Copiar alias al portapapeles --- */
+async function copiarAlias() {
+  const alias = ALIAS_NARANJA;
+  let ok = false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(alias);
+      ok = true;
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = alias;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.opacity = '0';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, alias.length);
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
+      document.body.removeChild(ta);
+    }
+  } catch {
+    ok = false;
+  }
+
+  if (ok) {
+    toast('📋 Alias copiado: ' + alias, 2200);
+    haptic(12);
+    const btn = adCopyAlias;
+    if (btn) {
+      const original = btn.innerHTML;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>¡Copiado!</span>';
+      setTimeout(() => { btn.innerHTML = original; }, 1800);
+    }
+  } else {
+    toast('No se pudo copiar. Alias: ' + alias, 3500);
+  }
+}
+
+// Configurar datos dinámicamente
+if (adAliasValue) adAliasValue.textContent = ALIAS_NARANJA;
+if (adAliasHolder) adAliasHolder.textContent = TITULAR_NARANJA;
+
+// Copiar desde el botón pequeño junto al alias
+if (adCopyAlias) adCopyAlias.addEventListener('click', copiarAlias);
+
+// Copiar desde el botón grande principal
+if (adDonateBtn) adDonateBtn.addEventListener('click', copiarAlias);
+
+// Copiar tocando directamente el alias
+if (adAliasValue) {
+  adAliasValue.addEventListener('click', copiarAlias);
+}
+
+// Abrir desde el botón flotante
+if (supportFab) {
+  supportFab.addEventListener('click', () => {
+    adShownThisSession = false;
+    mostrarAnuncio();
+  });
+}
+
+// Cerrar
+if (adCloseBtn) adCloseBtn.addEventListener('click', cerrarAnuncio);
+if (adLaterBtn) adLaterBtn.addEventListener('click', cerrarAnuncio);
+document.querySelectorAll('[data-close-ad]').forEach(el => {
+  el.addEventListener('click', cerrarAnuncio);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && adModal && adModal.classList.contains('on')) cerrarAnuncio();
+});
+
+// Mostrar el botón flotante tras unos segundos
+setTimeout(() => {
+  if (supportFab && !document.body.classList.contains('projection-mode')) {
+    supportFab.classList.add('show');
+  }
+}, 6000);
+
+// Auto-mostrar el anuncio una vez por sesión (con cooldown)
+setTimeout(() => {
+  if (puedeMostrarAnuncio() && !document.body.classList.contains('projection-mode')) {
+    mostrarAnuncio();
+  }
+}, AD_DELAY_MS);
+
+// Ocultar el botón flotante en modo proyección
+const adObserver = new MutationObserver(() => {
+  if (!supportFab) return;
+  const enProyeccion = document.body.classList.contains('projection-mode');
+  supportFab.style.display = enProyeccion ? 'none' : '';
+});
+adObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
