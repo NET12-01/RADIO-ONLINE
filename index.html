@@ -363,6 +363,84 @@
   <div class="proj-hint" id="projHint">Toca la pantalla para mostrar los controles</div>
 </div>
 
+<!-- ===== ANUNCIO / APOYO VOLUNTARIO ===== -->
+<button class="support-fab" id="supportFab" type="button" aria-label="Apoyar este ministerio">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+  <span class="support-fab-label">Apoyar</span>
+</button>
+
+<div class="ad-modal" id="adModal" role="dialog" aria-modal="true" aria-label="Apoya este ministerio">
+  <div class="ad-modal-backdrop" data-close-ad></div>
+  <div class="ad-modal-sheet">
+
+    <button class="ad-close" id="adCloseBtn" type="button" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+
+    <div class="ad-video-wrap">
+      <video
+        id="adVideo"
+        class="ad-video"
+        src="videos/anuncio.mp4"
+        preload="metadata"
+        playsinline
+        controls
+        poster="images/logo.png">
+        Tu navegador no soporta la etiqueta de video.
+      </video>
+    </div>
+
+    <div class="ad-content">
+      <h3 class="ad-title">Apoya este ministerio</h3>
+      <p class="ad-text">
+        Este espacio existe gracias a personas como tú. Si la música que compartimos
+        ha sido de bendición para tu vida, puedes apoyarnos <strong>de forma voluntaria</strong>.
+      </p>
+
+      <div class="ad-alias-box">
+        <span class="ad-alias-label">Naranja X · Transferencia</span>
+        <div class="ad-alias-row">
+          <span class="ad-alias-value" id="adAliasValue">dani0.--</span>
+          <button class="ad-alias-copy" id="adCopyAlias" type="button" aria-label="Copiar alias">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>Copiar</span>
+          </button>
+        </div>
+        <div class="ad-alias-holder">
+          <span class="ad-alias-holder-label">Titular:</span>
+          <span class="ad-alias-holder-name" id="adAliasHolder">Braian Daniel Velazquez</span>
+        </div>
+      </div>
+
+      <div class="ad-steps">
+        <p class="ad-steps-title">Cómo transferir:</p>
+        <ol class="ad-steps-list">
+          <li>Abre tu app de <strong>Naranja X</strong></li>
+          <li>Entra a <strong>Transferir</strong></li>
+          <li>Pega el alias <strong>dani0.--</strong></li>
+          <li>Verifica el titular: <strong>Braian Daniel Velazquez</strong></li>
+          <li>Elige el monto y confirma 🙏</li>
+        </ol>
+      </div>
+
+      <p class="ad-text small">
+        Cada aporte, por pequeño que sea, nos ayuda a seguir compartiendo el mensaje.
+      </p>
+
+      <div class="ad-actions">
+        <button class="ad-btn primary" id="adDonateBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copiar alias: dani0.--
+        </button>
+        <button class="ad-btn ghost" id="adLaterBtn" type="button">Quizás más tarde</button>
+      </div>
+
+      <p class="ad-note">Es totalmente opcional. Gracias por estar aquí. 🙏</p>
+    </div>
+
+  </div>
+</div>
+
 <canvas class="ambient-canvas" id="ambientCanvas" aria-hidden="true"></canvas>
 
 <audio id="audio" preload="metadata"></audio>
