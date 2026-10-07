@@ -38,9 +38,7 @@
 
   <header class="app-header">
     <div class="brand">
-      <div class="brand-icon">
-        <img src="images/logo.png" alt="Full Alabanza">
-      </div>
+      <div class="brand-icon"><img src="images/logo.png" alt="Full Alabanza"></div>
       <div class="brand-text">
         <h1>Full Alabanza</h1>
         <span>Música Cristiana</span>
@@ -55,13 +53,11 @@
 
   <section class="player-section" aria-label="Reproductor">
     <div class="player-card">
-      <div class="cover-wrap" id="coverWrap" role="button" tabindex="0" aria-label="Portada. Doble toque para reproducir, desliza para cambiar de pista.">
+      <div class="cover-wrap" id="coverWrap" role="button" tabindex="0" aria-label="Portada">
         <div class="cover-bg" id="coverBg"></div>
         <img class="cover-img" id="coverImg" alt="" fetchpriority="high">
         <div class="cover-loading" id="coverLoading" aria-hidden="true"><div class="spinner"></div></div>
-        <div class="cover-eq" aria-hidden="true">
-          <span class="cbar"></span><span class="cbar"></span><span class="cbar"></span>
-        </div>
+        <div class="cover-eq" aria-hidden="true"><span class="cbar"></span><span class="cbar"></span><span class="cbar"></span></div>
         <button class="cover-fav" id="coverFavBtn" type="button" aria-label="Marcar como favorito">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
         </button>
@@ -89,7 +85,7 @@
 
       <div class="progress-wrap">
         <div class="seek-bubble" id="seekBubble" aria-hidden="true">0:00</div>
-        <div class="progress-bar" id="progressBar" role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 de 0:00" tabindex="0">
+        <div class="progress-bar" id="progressBar" role="slider" aria-label="Progreso" tabindex="0">
           <div class="progress-buffered" id="progressBuffered"></div>
           <div class="progress-fill" id="progressFill"></div>
         </div>
@@ -127,7 +123,7 @@
       <button class="vol-btn" id="volDown" type="button" aria-label="Bajar volumen">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
       </button>
-      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.9" aria-label="Volumen" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="90">
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.9" aria-label="Volumen">
       <button class="vol-btn" id="volIcon" type="button" aria-label="Silenciar o activar sonido">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
       </button>
@@ -150,7 +146,7 @@
     </div>
   </section>
 
-  <div class="error-panel" id="errorPanel" role="alert" aria-live="assertive">
+  <div class="error-panel" id="errorPanel" role="alert">
     <strong>⚠️ No se pudieron cargar las pistas</strong>
     Verifica que existan en <code>songs/music-1.mp3</code>, <code>music-2.mp3</code>…
     <button id="errorRetry" type="button">Reintentar</button>
@@ -166,10 +162,10 @@
     <div class="panel-header">
       <span class="panel-title">Alabanzas</span>
       <div class="panel-actions">
-        <button class="mini-btn primary" id="playAllBtn" type="button" title="Reproducir desde el inicio" aria-label="Reproducir desde el inicio">
+        <button class="mini-btn primary" id="playAllBtn" type="button" title="Reproducir desde el inicio">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         </button>
-        <button class="mini-btn" id="favFilterBtn" type="button" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false">
+        <button class="mini-btn" id="favFilterBtn" type="button" title="Solo favoritos" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </button>
         <select class="mini-select" id="sortSelect" aria-label="Ordenar">
@@ -180,7 +176,6 @@
         </select>
       </div>
     </div>
-
     <div class="panel-body">
       <div class="playlist-controls">
         <div class="search-wrap">
@@ -196,10 +191,8 @@
           <option value="instrumental">Instrumental</option>
         </select>
       </div>
-
       <ul class="playlist" id="playlist" role="list"></ul>
       <div class="no-results" id="noResults">Sin resultados</div>
-
       <details class="extra-section" id="topSection">
         <summary><span>⭐ Más escuchadas</span></summary>
         <ol class="extra-list" id="topList"></ol>
@@ -219,7 +212,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
       </button>
     </div>
-
     <div class="panel-body">
       <div class="edu-controls">
         <div class="search-wrap">
@@ -231,10 +223,8 @@
           <option value="all">Todas</option>
         </select>
       </div>
-
       <div class="edu-grid" id="eduGrid"></div>
       <div class="no-results" id="eduNoResults">Sin enseñanzas disponibles</div>
-
       <details class="extra-section" id="eduHistorySection" style="display:none;">
         <summary><span>🕒 Vistos recientemente</span></summary>
         <ul class="extra-list" id="eduHistoryList"></ul>
@@ -252,7 +242,6 @@
   <div class="modal-sheet">
     <div class="sheet-handle" aria-hidden="true"></div>
     <h3 class="sheet-title">Opciones</h3>
-
     <div class="sheet-row">
       <button class="sheet-btn" id="themeToggle" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -310,7 +299,6 @@
       <button class="sleep-btn" data-min="end" type="button">Fin</button>
       <span class="sleep-display" id="sleepDisplay" aria-live="polite"></span>
     </div>
-
     <button class="sheet-close" data-close-more type="button">Cerrar</button>
   </div>
 </div>
@@ -321,9 +309,7 @@
     <div class="sheet-handle" aria-hidden="true"></div>
     <h3 class="sheet-title">Importar backup</h3>
     <p class="sheet-desc">Pega el código de backup o elige un archivo .json</p>
-
     <textarea class="import-textarea" id="importTextarea" placeholder='Pega aquí el código...' rows="6" spellcheck="false"></textarea>
-
     <input type="file" id="importFile" accept="application/json,.json" style="display:none">
     <div class="sheet-row" style="margin-top:12px">
       <button class="sheet-btn" id="importFileBtn" type="button">
@@ -335,7 +321,6 @@
         Aplicar
       </button>
     </div>
-
     <button class="sheet-close" data-close-import type="button">Cancelar</button>
   </div>
 </div>
@@ -343,20 +328,13 @@
 <div class="projection-overlay" id="projectionOverlay" aria-hidden="true">
   <div class="proj-ambient" id="projAmbient" aria-hidden="true"></div>
   <canvas class="proj-canvas" id="projCanvas" aria-hidden="true"></canvas>
-
-  <div class="proj-brand" aria-hidden="true">
-    <img src="images/logo.png" alt="">
-  </div>
-
+  <div class="proj-brand" aria-hidden="true"><img src="images/logo.png" alt=""></div>
   <div class="proj-content">
-    <div class="proj-cover" id="projCover">
-      <img id="projCoverImg" alt="">
-    </div>
+    <div class="proj-cover" id="projCover"><img id="projCoverImg" alt=""></div>
     <h1 class="proj-title" id="projTitle">Cuán Grande es Él</h1>
     <p class="proj-artist" id="projArtist">Alabanza y Adoración</p>
     <div class="proj-lyrics" id="projLyrics"></div>
   </div>
-
   <div class="proj-controls" id="projControls">
     <button class="proj-ctrl" id="projPrevBtn" type="button" aria-label="Anterior">
       <svg viewBox="0 0 24 24"><path d="M11 6 L4 12 L11 18 Z M20 6 L13 12 L20 18 Z"/></svg>
@@ -368,7 +346,6 @@
       <svg viewBox="0 0 24 24"><path d="M13 6 L20 12 L13 18 Z M4 6 L11 12 L4 18 Z"/></svg>
     </button>
   </div>
-
   <div class="proj-progress">
     <span id="projTimeCurrent">0:00</span>
     <div class="proj-progress-bar" id="projProgressBar">
@@ -376,11 +353,9 @@
     </div>
     <span id="projTimeDuration">--:--</span>
   </div>
-
   <button class="proj-exit" id="projExit" type="button" aria-label="Salir de proyección">
     <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
   </button>
-
   <div class="proj-hint" id="projHint">Toca la pantalla para mostrar los controles</div>
 </div>
 
@@ -392,24 +367,20 @@
 <div class="ad-modal" id="adModal" role="dialog" aria-modal="true" aria-label="Apoya este ministerio">
   <div class="ad-modal-backdrop" data-close-ad></div>
   <div class="ad-modal-sheet">
-
     <button class="ad-close" id="adCloseBtn" type="button" aria-label="Cerrar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
     </button>
-
     <div class="ad-video-wrap">
       <video id="adVideo" class="ad-video" src="videos/anuncio.mp4" preload="metadata" playsinline controls poster="images/logo.png">
         Tu navegador no soporta la etiqueta de video.
       </video>
     </div>
-
     <div class="ad-content">
       <h3 class="ad-title">Apoya este ministerio</h3>
       <p class="ad-text">
         Este espacio existe gracias a personas como tú. Si la música que compartimos
         ha sido de bendición para tu vida, puedes apoyarnos <strong>de forma voluntaria</strong>.
       </p>
-
       <div class="ad-alias-box">
         <span class="ad-alias-label">Naranja X · Transferencia</span>
         <div class="ad-alias-row">
@@ -424,7 +395,6 @@
           <span class="ad-alias-holder-name" id="adAliasHolder">Braian Daniel Velazquez</span>
         </div>
       </div>
-
       <div class="ad-steps">
         <p class="ad-steps-title">Cómo transferir:</p>
         <ol class="ad-steps-list">
@@ -435,11 +405,7 @@
           <li>Elige el monto y confirma 🙏</li>
         </ol>
       </div>
-
-      <p class="ad-text small">
-        Cada aporte, por pequeño que sea, nos ayuda a seguir compartiendo el mensaje.
-      </p>
-
+      <p class="ad-text small">Cada aporte, por pequeño que sea, nos ayuda a seguir compartiendo el mensaje.</p>
       <div class="ad-actions">
         <button class="ad-btn primary" id="adDonateBtn" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -447,10 +413,8 @@
         </button>
         <button class="ad-btn ghost" id="adLaterBtn" type="button">Quizás más tarde</button>
       </div>
-
       <p class="ad-note">Es totalmente opcional. Gracias por estar aquí. 🙏</p>
     </div>
-
   </div>
 </div>
 
@@ -458,15 +422,12 @@
 <div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Reproductor de video">
   <div class="video-modal-backdrop" data-close-video></div>
   <div class="video-modal-sheet">
-
     <button class="video-modal-close" id="videoCloseBtn" type="button" aria-label="Cerrar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
     </button>
-
     <div class="video-player-wrap">
       <video id="eduVideoEl" class="edu-video" controls playsinline preload="metadata"></video>
     </div>
-
     <div class="video-info">
       <div class="video-info-header">
         <h3 class="video-title" id="videoTitle">Cargando…</h3>
@@ -487,12 +448,10 @@
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
 <canvas class="ambient-canvas" id="ambientCanvas" aria-hidden="true"></canvas>
-
 <audio id="audio" preload="metadata"></audio>
 <audio id="preloader" preload="auto" muted></audio>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
