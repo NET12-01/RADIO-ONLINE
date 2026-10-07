@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
 Servidor para Full Alabanza.
-
-Sirve las imágenes (con o sin extensión) con el MIME correcto
-para que el navegador las muestre.
-
 Uso:
     python server.py
-Luego abre: http://localhost:8000
 """
 
 import http.server
@@ -52,8 +47,10 @@ def main():
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         print(f"✅ Servidor corriendo en http://localhost:{PORT}")
         print(f"📁 Sirviendo: {DIRECTORY}")
-        print(f"🖼  Imágenes en /images/music-N → image/jpeg")
-        print(f"🎬 Videos en /videos/ → video/mp4")
+        print(f"🖼  Imágenes: /images/ y /images/edu/")
+        print(f"🎵 Canciones: /songs/")
+        print(f"🎬 Videos: /videos/ y /videos/edu/")
+        print(f"📱 Generador QR: http://localhost:{PORT}/qr.html")
         print(f"💳 Alias Naranja X: dani0.--")
         print(f"👤 Titular: Braian Daniel Velazquez")
         print(f"⏹  Detén con Ctrl+C")
