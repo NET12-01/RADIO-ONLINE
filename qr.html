@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador QR · Full Alabanza</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0f1e;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    background: #121a2e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 540px;
+    width: 100%;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #22d3ee, #0369a1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+  }
+  input[type="url"] {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 16px;
+  }
+  input:focus { border-color: #22d3ee; background: rgba(255,255,255,0.08); }
+  .qr-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #fff;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    min-height: 340px;
+  }
+  #qrCanvas { max-width: 100%; height: auto; display: block; image-rendering: pixelated; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button {
+    padding: 14px 20px;
+    border-radius: 100px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 180ms;
+  }
+  button:active { transform: scale(0.97); }
+  .btn-primary {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #22d3ee, #0369a1);
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(34,211,238,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+  .info {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: rgba(34,211,238,0.08);
+    border: 1px solid rgba(34,211,238,0.2);
+    border-radius: 14px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+  }
+  .info strong { color: #22d3ee; }
+  .info ul { padding-left: 18px; margin-top: 6px; }
+  .info li { margin-bottom: 3px; }
+  .url-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(34,211,238,0.15);
+    border: 1px solid rgba(34,211,238,0.3);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #22d3ee;
+    margin-bottom: 16px;
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Generador de QR</h1>
+  <p class="subtitle">Full Alabanza · Escanea para abrir el reproductor</p>
+
+  <span class="url-badge">🔗 net12-01.github.io/RADIO-ONLINE</span>
+
+  <label for="urlInput">URL del reproductor</label>
+  <input type="url" id="urlInput" placeholder="https://tu-sitio.com" value="https://net12-01.github.io/RADIO-ONLINE/" autocomplete="off" spellcheck="false">
+
+  <div class="qr-wrap">
+    <canvas id="qrCanvas" width="800" height="800"></canvas>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" id="downloadBtn" type="button">⬇ Descargar PNG</button>
+    <button class="btn-secondary" id="copyBtn" type="button">Copiar URL</button>
+    <button class="btn-secondary" id="printBtn" type="button">Imprimir</button>
+  </div>
+
+  <div class="info">
+    <strong>Consejos:</strong>
+    <ul>
+      <li>Imprime el QR a 3×3 cm mínimo (5×5 cm para póster).</li>
+      <li>Fondo blanco y buen contraste: ya está optimizado.</li>
+      <li>Prueba con la cámara de iPhone, Android y Google Lens antes de compartirlo.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const qrCanvas = document.getElementById('qrCanvas');
+  const ctx = qrCanvas.getContext('2d');
+  const urlInput = document.getElementById('urlInput');
+
+  const SIZE = qrCanvas.width;
+  const MARGIN = 48;
+  const LOGO_RATIO = 0.22;
+  const PAD_RATIO = 1.20;
+
+  let currentUrl = urlInput.value.trim();
+  let logoReady = false;
+  let logoImg = new Image();
+
+  logoImg.crossOrigin = 'anonymous';
+  logoImg.onload = () => { logoReady = true; renderQR(); };
+  logoImg.onerror = () => { logoReady = false; renderQR(); };
+  logoImg.src = 'images/logo.png';
+
+  function renderQR() {
+    const text = (currentUrl || '').trim();
+    if (!text) return;
+
+    let qr;
+    try {
+      qr = qrcode(0, 'H');
+      qr.addData(text);
+      qr.make();
+    } catch (e) {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, SIZE, SIZE);
+      ctx.fillStyle = '#c00';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('URL demasiado larga', SIZE / 2, SIZE / 2);
+      return;
+    }
+
+    const moduleCount = qr.getModuleCount();
+    const usableSize = SIZE - MARGIN * 2;
+    const cellSize = Math.floor(usableSize / moduleCount);
+    const qrSize = cellSize * moduleCount;
+    const offset = Math.floor((SIZE - qrSize) / 2);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    ctx.fillStyle = '#000000';
+    for (let row = 0; row < moduleCount; row++) {
+      for (let col = 0; col < moduleCount; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect(
+            offset + col * cellSize,
+            offset + row * cellSize,
+            cellSize,
+            cellSize
+          );
+        }
+      }
+    }
+
+    if (logoReady && logoImg.naturalWidth > 0) {
+      const logoSize = Math.floor(qrSize * LOGO_RATIO);
+      const logoX = offset + (qrSize - logoSize) / 2;
+      const logoY = offset + (qrSize - logoSize) / 2;
+
+      const padSize = Math.floor(logoSize * PAD_RATIO);
+      const padX = offset + (qrSize - padSize) / 2;
+      const padY = offset + (qrSize - padSize) / 2;
+      const padCx = padX + padSize / 2;
+      const padCy = padY + padSize / 2;
+      const padRadius = padSize / 2;
+
+      ctx.beginPath();
+      ctx.arc(padCx, padCy, padRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      ctx.restore();
+    }
+  }
+
+  urlInput.addEventListener('input', () => {
+    currentUrl = urlInput.value.trim();
+    clearTimeout(window._qrTimer);
+    window._qrTimer = setTimeout(renderQR, 250);
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'qr-full-alabanza.png';
+    link.href = qrCanvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(currentUrl);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = currentUrl;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      alert('URL copiada:\n' + currentUrl);
+    } catch (e) {
+      alert('No se pudo copiar. URL: ' + currentUrl);
+    }
+  });
+
+  document.getElementById('printBtn').addEventListener('click', () => {
+    const win = window.open('', '_blank');
+    if (!win) { alert('Permite ventanas emergentes para imprimir.'); return; }
+    const dataUrl = qrCanvas.toDataURL('image/png');
+    win.document.write(
+      '<!DOCTYPE html><html><head><title>QR Full Alabanza</title>' +
+      '<style>' +
+      'body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif}' +
+      'img{max-width:80vmin;height:auto}' +
+      'p{margin-top:16px;font-size:14px;color:#333}' +
+      '</style></head><body>' +
+      '<img src="' + dataUrl + '">' +
+      '<p>Escanea para abrir Full Alabanza</p>' +
+      '</body></html>'
+    );
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 300);
+  });
+
+  renderQR();
+})();
+</script>
+</body>
+</html>
