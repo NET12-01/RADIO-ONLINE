@@ -45,10 +45,9 @@ const educationalVideos = [
     verse: '"Y se les aparecieron lenguas repartidas, como de fuego." — Hechos 2:3',
     date: '2026-10-07'
   },
-  // 👈 NUEVO — Versículo de hoy
   {
     id: 'versiculo-1',
-    title: 'El Versículo de Hoy',
+    title: 'El Versículo de Hoy · Salmos 23:1',
     description: 'Raúl comparte la Palabra de Dios para tu día. Un momento de paz, reflexión y bendición en medio de tu rutina.',
     thumbnail: 'images/logo.png',
     file: 'videos/edu/versiculo-1.mp4',
@@ -56,6 +55,18 @@ const educationalVideos = [
     duration: '—',
     verse: '"Jehová es mi pastor; nada me faltará." — Salmos 23:1',
     date: '2026-10-08'
+  },
+  // 👈 NUEVO — Versículo 2
+  {
+    id: 'versiculo-2',
+    title: 'El Versículo de Hoy · Juan 3:16',
+    description: 'Raúl comparte el versículo más conocido de la Biblia: el amor de Dios por el mundo. Un momento de reflexión sobre Su gracia y misericordia.',
+    thumbnail: 'images/logo.png',
+    file: 'videos/edu/versiculo-2.mp4',
+    category: 'versiculo',
+    duration: '—',
+    verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito." — Juan 3:16',
+    date: '2026-10-09'
   }
 ];
 
@@ -66,7 +77,7 @@ const EDU_CATEGORY_LABELS = {
   'historia-iglesia': 'Historia de la Iglesia',
   devocional: 'Devocional',
   profecia: 'Profecía',
-  versiculo: 'Versículo'      // 👈 NUEVO
+  versiculo: 'Versículo'
 };
 
 const TYPE_LABELS = {
