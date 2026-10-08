@@ -44,6 +44,18 @@ const educationalVideos = [
     duration: '—',
     verse: '"Y se les aparecieron lenguas repartidas, como de fuego." — Hechos 2:3',
     date: '2026-10-07'
+  },
+  // 👈 NUEVO — Versículo de hoy
+  {
+    id: 'versiculo-1',
+    title: 'El Versículo de Hoy',
+    description: 'Raúl comparte la Palabra de Dios para tu día. Un momento de paz, reflexión y bendición en medio de tu rutina.',
+    thumbnail: 'images/logo.png',
+    file: 'videos/edu/versiculo-1.mp4',
+    category: 'versiculo',
+    duration: '—',
+    verse: '"Jehová es mi pastor; nada me faltará." — Salmos 23:1',
+    date: '2026-10-08'
   }
 ];
 
@@ -53,7 +65,8 @@ const EDU_CATEGORY_LABELS = {
   testimonio: 'Testimonio',
   'historia-iglesia': 'Historia de la Iglesia',
   devocional: 'Devocional',
-  profecia: 'Profecía'
+  profecia: 'Profecía',
+  versiculo: 'Versículo'      // 👈 NUEVO
 };
 
 const TYPE_LABELS = {
@@ -625,8 +638,7 @@ function startAmbientVisualizer() {
   const ctx = ambientCanvas.getContext('2d');
   const projCtx = projCanvas.getContext('2d');
   function resize() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = window.innerWidth; const h = window.innerHeight;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     [ambientCanvas, projCanvas].forEach(c => {
       c.width = w * dpr; c.height = h * dpr;
