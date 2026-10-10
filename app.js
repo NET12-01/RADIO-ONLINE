@@ -67,7 +67,6 @@ const educationalVideos = [
     verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito." — Juan 3:16',
     date: '2026-10-09'
   },
-  // 👈 NUEVO — Versículo 3
   {
     id: 'versiculo-3',
     title: 'El Versículo de Hoy · Filipenses 4:13',
@@ -78,6 +77,18 @@ const educationalVideos = [
     duration: '—',
     verse: '"Todo lo puedo en Cristo que me fortalece." — Filipenses 4:13',
     date: '2026-10-10'
+  },
+  // 👈 NUEVO — Versículo 4 (10 segundos, sin texto en el video)
+  {
+    id: 'versiculo-4',
+    title: 'El Versículo de Hoy · Nehemías 8:10',
+    description: 'Raúl comparte una promesa breve pero poderosa: el gozo de Dios es tu fuerza. Un aliento para los días difíciles.',
+    thumbnail: 'images/logo.png',
+    file: 'videos/edu/versiculo-4.mp4',
+    category: 'versiculo',
+    duration: '0:10',
+    verse: '"El gozo de Jehová es vuestra fuerza." — Nehemías 8:10',
+    date: '2026-10-11'
   }
 ];
 
