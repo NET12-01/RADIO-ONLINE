@@ -78,7 +78,6 @@ const educationalVideos = [
     verse: '"Todo lo puedo en Cristo que me fortalece." — Filipenses 4:13',
     date: '2026-10-10'
   },
-  // 👈 NUEVO — Versículo 4 (10 segundos, sin texto en el video)
   {
     id: 'versiculo-4',
     title: 'El Versículo de Hoy · Nehemías 8:10',
@@ -89,6 +88,18 @@ const educationalVideos = [
     duration: '0:10',
     verse: '"El gozo de Jehová es vuestra fuerza." — Nehemías 8:10',
     date: '2026-10-11'
+  },
+  // 👈 NUEVO — Versículo 5 (10 segundos, sin texto en el video)
+  {
+    id: 'versiculo-5',
+    title: 'El Versículo de Hoy · Josué 1:9',
+    description: 'Raúl comparte una promesa de valor y fortaleza: Dios estará contigo dondequiera que vayas. Un aliento para seguir adelante.',
+    thumbnail: 'images/logo.png',
+    file: 'videos/edu/versiculo-5.mp4',
+    category: 'versiculo',
+    duration: '0:10',
+    verse: '"Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo dondequiera que vayas." — Josué 1:9',
+    date: '2026-10-12'
   }
 ];
 
